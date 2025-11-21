@@ -1,31 +1,26 @@
-# Backend Dockerfile - Simplified for development
+# Backend Dockerfile - Simplified
 FROM node:20-alpine
 
-WORKDIR /app
+WORKDIR /app/packages/backend
 
 # Install OpenSSL for Prisma
 RUN apk add --no-cache openssl
 
 # Copy package files
-COPY package*.json ./
-COPY packages/backend/package*.json ./packages/backend/
+COPY packages/backend/package*.json ./
 
-# Install all dependencies
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
 # Copy source code
-COPY tsconfig.json ./
-COPY packages/backend ./packages/backend
+COPY packages/backend ./
 
 # Generate Prisma Client
-WORKDIR /app/packages/backend
 RUN npx prisma generate
-
-WORKDIR /app
 
 ENV NODE_ENV=production
 
 EXPOSE 3000 4000
 
-# Start both bot and API using tsx (no build needed)
-CMD ["sh", "-c", "cd packages/backend && npx prisma migrate deploy && npx tsx src/bot/start.ts & npx tsx src/api/index.ts & wait"]
+# Start both bot and API using tsx
+CMD ["sh", "-c", "npx prisma migrate deploy && npx tsx src/bot/start.ts & npx tsx src/api/index.ts & wait"]

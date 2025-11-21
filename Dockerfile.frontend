@@ -1,53 +1,25 @@
-# Frontend Dockerfile
-FROM node:20-alpine AS base
+# Frontend Dockerfile - Simplified
+FROM node:20-alpine
 
-# Install dependencies only when needed
-FROM base AS deps
-WORKDIR /app
+WORKDIR /app/packages/frontend
 
 # Copy package files
-COPY package*.json ./
-COPY packages/frontend/package*.json ./packages/frontend/
+COPY packages/frontend/package*.json ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Build stage
-FROM base AS builder
-WORKDIR /app
+# Copy source code
+COPY packages/frontend ./
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY packages/frontend ./packages/frontend
-
-# Install frontend dependencies
-WORKDIR /app/packages/frontend
-RUN npm install --legacy-peer-deps
-
-# Build frontend
+# Build Next.js app
 RUN npm run build
 
-# Production stage
-FROM base AS runner
-WORKDIR /app
-
 ENV NODE_ENV=production
-
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy built application
-COPY --from=builder /app/packages/frontend/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/packages/frontend/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/packages/frontend/.next/static ./.next/static
-
-USER nextjs
-
-EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+EXPOSE 3000
+
+# Start Next.js
+CMD ["npm", "start"]
