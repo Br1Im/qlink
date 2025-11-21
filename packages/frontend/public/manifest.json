@@ -1,0 +1,21 @@
+{
+  "name": "Qlink - Онлайн-запись в заведения",
+  "short_name": "Qlink",
+  "description": "Быстрая запись в салоны красоты, парикмахерские и другие заведения",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563EB",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo-original.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "lifestyle", "productivity"],
+  "lang": "ru",
+  "dir": "ltr"
+}

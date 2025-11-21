@@ -1,0 +1,53 @@
+# Backend Dockerfile
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY packages/backend/package*.json ./packages/backend/
+
+# Install dependencies
+RUN npm ci
+
+# Build stage
+FROM base AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages/backend/node_modules ./packages/backend/node_modules
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY packages/backend ./packages/backend
+
+# Generate Prisma Client
+WORKDIR /app/packages/backend
+RUN npx prisma generate
+
+# Build backend
+RUN npm run build
+
+# Production stage
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 qlink
+
+# Copy built application
+COPY --from=builder --chown=qlink:nodejs /app/packages/backend/dist ./dist
+COPY --from=builder --chown=qlink:nodejs /app/packages/backend/node_modules ./node_modules
+COPY --from=builder --chown=qlink:nodejs /app/packages/backend/prisma ./prisma
+COPY --from=builder --chown=qlink:nodejs /app/packages/backend/package*.json ./
+
+USER qlink
+
+EXPOSE 3000 4000
+
+# Start both bot and API
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/bot/start.js & node dist/api/index.js"]
