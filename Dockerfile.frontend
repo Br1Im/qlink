@@ -10,7 +10,7 @@ COPY package*.json ./
 COPY packages/frontend/package*.json ./packages/frontend/
 
 # Install dependencies
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Build stage
 FROM base AS builder
