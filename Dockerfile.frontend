@@ -8,8 +8,11 @@ RUN echo '{"compilerOptions":{"target":"ES2017","lib":["dom","dom.iterable","esn
 
 WORKDIR /app/packages/frontend
 
-# Copy package files
+# Copy config files first
 COPY packages/frontend/package*.json ./
+COPY packages/frontend/next.config.js* ./
+COPY packages/frontend/postcss.config.js* ./
+COPY packages/frontend/tailwind.config.ts* ./
 
 # Install dependencies
 RUN npm install --legacy-peer-deps
