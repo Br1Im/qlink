@@ -1,6 +1,11 @@
 # Frontend Dockerfile - Development mode
 FROM node:20-alpine
 
+WORKDIR /app
+
+# Create root tsconfig.json
+RUN echo '{"compilerOptions":{"target":"ES2017","lib":["dom","dom.iterable","esnext"],"allowJs":true,"skipLibCheck":true,"strict":false,"forceConsistentCasingInFileNames":true,"noEmit":true,"esModuleInterop":true,"module":"esnext","moduleResolution":"node","resolveJsonModule":true,"isolatedModules":true,"jsx":"preserve","incremental":true,"plugins":[{"name":"next"}],"paths":{"@/*":["./packages/frontend/src/*"]}},"include":["packages/frontend/**/*.ts","packages/frontend/**/*.tsx"],"exclude":["node_modules"]}' > tsconfig.json
+
 WORKDIR /app/packages/frontend
 
 # Copy package files
@@ -12,10 +17,8 @@ RUN npm install --legacy-peer-deps
 # Copy source code
 COPY packages/frontend ./
 
-# Create tsconfig.json if it doesn't exist
-RUN if [ ! -f tsconfig.json ]; then \
-  echo '{"compilerOptions":{"target":"ES2017","lib":["dom","dom.iterable","esnext"],"allowJs":true,"skipLibCheck":true,"strict":false,"forceConsistentCasingInFileNames":true,"noEmit":true,"esModuleInterop":true,"module":"esnext","moduleResolution":"node","resolveJsonModule":true,"isolatedModules":true,"jsx":"preserve","incremental":true,"plugins":[{"name":"next"}],"paths":{"@/*":["./src/*"]}},"include":["next-env.d.ts","**/*.ts","**/*.tsx",".next/types/**/*.ts"],"exclude":["node_modules"]}' > tsconfig.json; \
-fi
+# Create local tsconfig.json
+RUN echo '{"extends":"../../tsconfig.json","compilerOptions":{"paths":{"@/*":["./src/*"]}},"include":["next-env.d.ts","**/*.ts","**/*.tsx",".next/types/**/*.ts"],"exclude":["node_modules"]}' > tsconfig.json
 
 ENV NODE_ENV=development
 ENV PORT=3000
@@ -23,5 +26,5 @@ ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
 
-# Start Next.js in dev mode (no build needed)
+# Start Next.js in dev mode
 CMD ["npm", "run", "dev"]
