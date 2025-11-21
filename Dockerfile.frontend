@@ -8,14 +8,11 @@ RUN echo '{"compilerOptions":{"target":"ES2017","lib":["dom","dom.iterable","esn
 
 WORKDIR /app/packages/frontend
 
-# Copy package files
-COPY packages/frontend/package*.json ./
-
-# Install dependencies
-RUN npm install --legacy-peer-deps
-
-# Copy all source code and config files
+# Copy ALL files first (including updated package.json)
 COPY packages/frontend ./
+
+# Install dependencies (this will use the copied package.json with tailwind in dependencies)
+RUN npm install --legacy-peer-deps
 
 # Create local tsconfig.json
 RUN echo '{"extends":"../../tsconfig.json","compilerOptions":{"paths":{"@/*":["./src/*"]}},"include":["next-env.d.ts","**/*.ts","**/*.tsx",".next/types/**/*.ts"],"exclude":["node_modules"]}' > tsconfig.json
