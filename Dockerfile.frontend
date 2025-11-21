@@ -17,13 +17,15 @@ FROM base AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/frontend/node_modules ./packages/frontend/node_modules
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY packages/frontend ./packages/frontend
 
-# Build frontend
+# Install frontend dependencies
 WORKDIR /app/packages/frontend
+RUN npm install --legacy-peer-deps
+
+# Build frontend
 RUN npm run build
 
 # Production stage
