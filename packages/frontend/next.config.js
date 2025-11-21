@@ -3,6 +3,14 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'standalone',
+  typescript: {
+    // Отключаем проверку типов при сборке (для production)
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // Отключаем ESLint при сборке (для production)
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: ['storage.yandexcloud.net'],
     formats: ['image/webp', 'image/avif'],

@@ -9,7 +9,6 @@ import {
   Calendar,
   Star,
   ArrowUp,
-  ArrowDown,
   BarChart3,
 } from 'lucide-react';
 
