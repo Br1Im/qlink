@@ -1,4 +1,4 @@
-# Frontend Dockerfile - Simplified
+# Frontend Dockerfile - Development mode
 FROM node:20-alpine
 
 WORKDIR /app/packages/frontend
@@ -12,14 +12,11 @@ RUN npm install --legacy-peer-deps
 # Copy source code
 COPY packages/frontend ./
 
-# Build Next.js app
-RUN npm run build
-
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 EXPOSE 3000
 
-# Start Next.js
-CMD ["npm", "start"]
+# Start Next.js in dev mode (no build needed)
+CMD ["npm", "run", "dev"]
