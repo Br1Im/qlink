@@ -5,11 +5,20 @@
 ```bash
 cd ~/qlink
 git pull origin main
-docker-compose -f docker-compose.prod.yml stop frontend
-docker-compose -f docker-compose.prod.yml rm -f frontend
+docker-compose -f docker-compose.prod.yml down frontend
+docker volume rm qlink_frontend_node_modules qlink_frontend_next 2>/dev/null || true
 docker rmi qlink-frontend 2>/dev/null || true
 docker-compose -f docker-compose.prod.yml build --no-cache frontend
 docker-compose -f docker-compose.prod.yml up -d frontend
+docker-compose -f docker-compose.prod.yml logs -f frontend
+```
+
+## Alternative: Quick Restart (if you already rebuilt once)
+
+```bash
+cd ~/qlink
+git pull origin main
+docker-compose -f docker-compose.prod.yml restart frontend
 docker-compose -f docker-compose.prod.yml logs -f frontend
 ```
 
