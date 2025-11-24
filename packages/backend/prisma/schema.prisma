@@ -48,6 +48,7 @@ model BusinessOwner {
   userId        String?   @unique
   email         String    @unique
   phone         String    @unique
+  password      String    // Хешированный пароль
   firstName     String
   lastName      String
   company       String?

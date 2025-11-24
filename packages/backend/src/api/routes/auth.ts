@@ -32,6 +32,7 @@ router.post('/register', async (req, res) => {
       data: {
         email,
         phone,
+        password: hashedPassword,
         firstName,
         lastName,
         company,
@@ -71,8 +72,12 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Неверные учетные данные' });
     }
 
-    // Проверка пароля (в реальном приложении нужно хранить хеш)
-    // const isValid = await bcrypt.compare(password, owner.password);
+    // Проверка пароля
+    const isValid = await bcrypt.compare(password, owner.password);
+    
+    if (!isValid) {
+      return res.status(401).json({ error: 'Неверные учетные данные' });
+    }
 
     const token = jwt.sign({ id: owner.id, email: owner.email }, JWT_SECRET, {
       expiresIn: '30d',
