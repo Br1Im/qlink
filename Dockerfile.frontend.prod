@@ -1,0 +1,35 @@
+# Production Frontend Dockerfile - Simple and reliable
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Create root tsconfig.json
+RUN echo '{"compilerOptions":{"target":"ES2017","lib":["dom","dom.iterable","esnext"],"allowJs":true,"skipLibCheck":true,"strict":false,"forceConsistentCasingInFileNames":true,"noEmit":true,"esModuleInterop":true,"module":"esnext","moduleResolution":"node","resolveJsonModule":true,"isolatedModules":true,"jsx":"preserve","incremental":true,"plugins":[{"name":"next"}],"paths":{"@/*":["./packages/frontend/src/*"]}},"include":["packages/frontend/**/*.ts","packages/frontend/**/*.tsx"],"exclude":["node_modules"]}' > tsconfig.json
+
+WORKDIR /app/packages/frontend
+
+# Copy package files and install dependencies
+COPY packages/frontend/package*.json ./
+RUN npm ci --legacy-peer-deps --production=false
+
+# Copy all source files
+COPY packages/frontend ./
+
+# Create local tsconfig.json
+RUN echo '{"extends":"../../tsconfig.json","compilerOptions":{"paths":{"@/*":["./src/*"]}},"include":["next-env.d.ts","**/*.ts","**/*.tsx",".next/types/**/*.ts"],"exclude":["node_modules"]}' > tsconfig.json
+
+# Build the application
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+EXPOSE 3000
+
+# Start the production server
+CMD ["npm", "start"]

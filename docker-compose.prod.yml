@@ -70,14 +70,11 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile.frontend.prod
     container_name: qlink-frontend
     environment:
       NEXT_PUBLIC_API_URL: https://q-link.tech/api
-      NODE_ENV: development
-    volumes:
-      - frontend_node_modules:/app/packages/frontend/node_modules
-      - frontend_next:/app/packages/frontend/.next
+      NODE_ENV: production
     depends_on:
       - backend
     restart: unless-stopped
@@ -114,8 +111,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  frontend_node_modules:
-  frontend_next:
 
 networks:
   qlink-network:
