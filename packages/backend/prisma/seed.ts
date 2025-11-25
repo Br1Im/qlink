@@ -1,15 +1,40 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Начинаем заполнение базы данных...');
 
-  // Создаем владельца бизнеса
-  const owner = await prisma.businessOwner.create({
-    data: {
-      email: 'owner@example.com',
+  // Создаем тестовый аккаунт для входа
+  const testPassword = await bcrypt.hash('Test123456', 10);
+  const testOwner = await prisma.businessOwner.upsert({
+    where: { email: 'test@qlink.tech' },
+    update: {},
+    create: {
+      email: 'test@qlink.tech',
       phone: '+79991234567',
+      password: testPassword,
+      firstName: 'Тест',
+      lastName: 'Тестов',
+      company: 'Тестовая Компания',
+      isVerified: true,
+    },
+  });
+
+  console.log('✅ Создан тестовый аккаунт:', testOwner.email);
+  console.log('   Email: test@qlink.tech');
+  console.log('   Пароль: Test123456');
+
+  // Создаем владельца бизнеса
+  const ownerPassword = await bcrypt.hash('Owner123456', 10);
+  const owner = await prisma.businessOwner.upsert({
+    where: { email: 'owner@example.com' },
+    update: {},
+    create: {
+      email: 'owner@example.com',
+      phone: '+79991234568',
+      password: ownerPassword,
       firstName: 'Иван',
       lastName: 'Иванов',
       company: 'ООО "Красота"',
