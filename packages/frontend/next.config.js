@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'standalone', // Для Docker production build
   typescript: {
     // Отключаем проверку типов при сборке (для production)
     ignoreBuildErrors: true,
