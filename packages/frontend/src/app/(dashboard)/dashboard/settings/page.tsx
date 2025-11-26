@@ -36,16 +36,14 @@ export default function SettingsPage() {
   }, []);
   
   // Состояние для бизнес-информации
-  const [businessData, setBusinessData] = useState(() => 
-    loadFromStorage('qlink-business-data', {
-      name: 'Салон Красота',
-      category: 'Красота',
-      description: 'Современный салон красоты в центре города',
-      phone: '+7 (495) 123-45-67',
-      email: 'info@salon.com',
-      address: 'Москва, ул. Тверская, 10',
-    })
-  );
+  const [businessData, setBusinessData] = useState({
+    name: 'Салон Красота',
+    category: 'Красота',
+    description: 'Современный салон красоты в центре города',
+    phone: '+7 (495) 123-45-67',
+    email: 'info@salon.com',
+    address: 'Москва, ул. Тверская, 10',
+  });
   
   // Состояние для профиля
   const [profileData, setProfileData] = useState(() =>
