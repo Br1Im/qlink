@@ -8,13 +8,16 @@ RUN echo '{"compilerOptions":{"target":"ES2017","lib":["dom","dom.iterable","esn
 
 WORKDIR /app/packages/frontend
 
-# Copy ALL files first (including updated package.json)
-COPY packages/frontend ./
+# Copy package files first
+COPY packages/frontend/package*.json ./
 
-# Install dependencies (this will use the copied package.json with tailwind in dependencies)
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Create local tsconfig.json
+# Copy all source files (this includes postcss.config.js and tailwind.config.ts)
+COPY packages/frontend ./
+
+# Create local tsconfig.json (only if it doesn't exist or needs override)
 RUN echo '{"extends":"../../tsconfig.json","compilerOptions":{"paths":{"@/*":["./src/*"]}},"include":["next-env.d.ts","**/*.ts","**/*.tsx",".next/types/**/*.ts"],"exclude":["node_modules"]}' > tsconfig.json
 
 ENV NODE_ENV=development

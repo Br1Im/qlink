@@ -1,53 +1,16 @@
+// ВРЕМЕННО ОТКЛЮЧЕНО: Middleware вызывает ошибку в Docker
+// Будет включено после исправления проблемы с prerender-manifest.js
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Защищенные маршруты
-const protectedRoutes = ['/dashboard'];
-
-// Публичные маршруты (доступны только неавторизованным)
-const publicRoutes = ['/login', '/register'];
-
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
-  // Пропускаем главную страницу
-  if (pathname === '/') {
-    return NextResponse.next();
-  }
-  
-  // Получаем токен из cookies
-  const token = request.cookies.get('qlink_auth_token')?.value;
-  const isAuthenticated = !!token;
-  
-  // Проверка защищенных маршрутов
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
-  
-  // Если пользователь не авторизован и пытается зайти на защищенный маршрут
-  if (isProtectedRoute && !isAuthenticated) {
-    const url = new URL('/login', request.url);
-    url.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(url);
-  }
-  
-  // Если пользователь авторизован и пытается зайти на публичный маршрут
-  if (isPublicRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-  
+  // Временно пропускаем все запросы без проверки
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.svg$).*)',
   ],
 };
