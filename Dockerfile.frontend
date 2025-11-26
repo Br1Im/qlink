@@ -5,12 +5,14 @@ WORKDIR /app/packages/frontend
 
 # Copy package files
 COPY packages/frontend/package*.json ./
+
+# Install dependencies (use npm install instead of ci)
+RUN npm install --legacy-peer-deps
+
+# Copy config files
 COPY packages/frontend/postcss.config.js ./
 COPY packages/frontend/tailwind.config.ts ./
 COPY packages/frontend/next.config.js ./
-
-# Install dependencies
-RUN npm ci --legacy-peer-deps
 
 # Copy all source files
 COPY packages/frontend ./
@@ -20,9 +22,6 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
 RUN npm run build
-
-# Remove dev dependencies to reduce image size
-RUN npm prune --production
 
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
