@@ -113,8 +113,6 @@ export default function ServicesPage() {
             description: 'Аппаратный педикюр',
           },
         ]);
-          }
-        }
       }
     };
     

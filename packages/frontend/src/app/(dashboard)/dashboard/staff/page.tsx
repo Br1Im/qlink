@@ -85,8 +85,6 @@ export default function StaffPage() {
             workingHours: 'Пн-Сб: 9:00-18:00',
           },
         ]);
-          }
-        }
       }
     };
     
