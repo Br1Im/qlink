@@ -24,16 +24,32 @@ export default function AnalyticsPage() {
 
   const [topServices, setTopServices] = useState<any[]>([]);
   const [topStaff, setTopStaff] = useState<any[]>([]);
-  const [revenueData, setRevenueData] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
-  const [bookingsData, setBookingsData] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
+  const [revenuePeriod, setRevenuePeriod] = useState<'7' | '30' | '90'>('7');
+  const [bookingsPeriod, setBookingsPeriod] = useState<'7' | '30' | '90'>('7');
+  
+  // Данные для разных периодов
+  const [allRevenueData, setAllRevenueData] = useState({
+    '7': [15000, 18000, 22000, 19000, 25000, 16000, 10000],
+    '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+    '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+  });
+  
+  const [allBookingsData, setAllBookingsData] = useState({
+    '7': [5, 7, 9, 8, 12, 6, 4],
+    '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+    '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+  });
+  
+  const revenueData = allRevenueData[revenuePeriod];
+  const bookingsData = allBookingsData[bookingsPeriod];
 
   useEffect(() => {
     const loadDemoData = async () => {
       const isDemoMode = typeof window !== 'undefined' && localStorage.getItem('demo-mode') === 'true';
       const demoType = typeof window !== 'undefined' ? localStorage.getItem('demo-type') || 'beauty' : 'beauty';
       
-      if (isDemoMode) {
-        try {
+      try {
+        if (isDemoMode) {
           const { getDemoAccount } = await import('@/lib/demo-accounts');
           const account = getDemoAccount(demoType as any);
           const analytics = account.analytics;
@@ -47,10 +63,21 @@ export default function AnalyticsPage() {
           });
           setTopServices(analytics.topServices);
           setTopStaff(analytics.topStaff);
-          setRevenueData(analytics.revenueData);
-          setBookingsData(analytics.bookingsData);
-        } catch (error) {
-          // Fallback данные
+          // Генерируем данные для разных периодов
+          const revenue7 = analytics.revenueData || [15000, 18000, 22000, 19000, 25000, 16000, 10000];
+          const bookings7 = analytics.bookingsData || [5, 7, 9, 8, 12, 6, 4];
+          setAllRevenueData({
+            '7': revenue7,
+            '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+            '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+          });
+          setAllBookingsData({
+            '7': bookings7,
+            '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+            '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+          });
+        } else {
+          // Загружаем демо-данные по умолчанию для показа интерфейса
           setStats({
             revenue: 125000,
             bookings: 48,
@@ -68,9 +95,37 @@ export default function AnalyticsPage() {
             { name: 'Иван Иванов', bookings: 189, rating: 4.8 },
             { name: 'Мария Петрова', bookings: 156, rating: 4.9 },
           ]);
-          setRevenueData([15000, 18000, 22000, 19000, 25000, 16000, 10000]);
-          setBookingsData([5, 7, 9, 8, 12, 6, 4]);
+          setAllRevenueData({
+            '7': [15000, 18000, 22000, 19000, 25000, 16000, 10000],
+            '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+            '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+          });
+          setAllBookingsData({
+            '7': [5, 7, 9, 8, 12, 6, 4],
+            '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+            '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+          });
         }
+      } catch (error) {
+        console.error('Ошибка загрузки данных аналитики:', error);
+        // Fallback данные при ошибке
+        setStats({
+          revenue: 125000,
+          bookings: 48,
+          newClients: 32,
+          rating: 4.8,
+          reviewCount: 156,
+        });
+        setAllRevenueData({
+          '7': [15000, 18000, 22000, 19000, 25000, 16000, 10000],
+          '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+          '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 20000) + 10000),
+        });
+        setAllBookingsData({
+          '7': [5, 7, 9, 8, 12, 6, 4],
+          '30': Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+          '90': Array.from({ length: 90 }, (_, i) => Math.floor(Math.random() * 15) + 3),
+        });
       }
     };
     
@@ -259,24 +314,42 @@ export default function AnalyticsPage() {
             <h2 className="text-lg font-bold text-gray-900">
               Выручка по дням
             </h2>
-            <select className="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-              <option>7 дней</option>
-              <option>30 дней</option>
-              <option>90 дней</option>
+            <select 
+              value={revenuePeriod}
+              onChange={(e) => setRevenuePeriod(e.target.value as '7' | '30' | '90')}
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="7">7 дней</option>
+              <option value="30">30 дней</option>
+              <option value="90">90 дней</option>
             </select>
           </div>
           <div className="h-64 flex items-end justify-between space-x-2">
-            {[65, 45, 78, 52, 89, 67, 95].map((height, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center">
-                <div
-                  className="w-full bg-gradient-to-t from-blue-600 to-cyan-500 rounded-t-lg hover:opacity-80 transition cursor-pointer"
-                  style={{ height: `${height}%` }}
-                />
-                <span className="text-xs text-gray-600 mt-2">
-                  {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][i]}
-                </span>
-              </div>
-            ))}
+            {revenueData.map((value, i) => {
+              const maxValue = Math.max(...revenueData);
+              const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center group">
+                  <div className="relative">
+                    <div
+                      className="w-full bg-gradient-to-t from-blue-600 to-cyan-500 rounded-t-lg hover:opacity-80 transition cursor-pointer"
+                      style={{ height: `${Math.max(height, 5)}px`, minHeight: '5px' }}
+                    />
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                      {value.toLocaleString()}₽
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-600 mt-2">
+                    {revenuePeriod === '7' 
+                      ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][i]
+                      : revenuePeriod === '30'
+                      ? i % 5 === 0 ? `${i + 1}` : ''
+                      : i % 15 === 0 ? `${i + 1}` : ''
+                    }
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -286,24 +359,42 @@ export default function AnalyticsPage() {
             <h2 className="text-lg font-bold text-gray-900">
               Записи по дням
             </h2>
-            <select className="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-              <option>7 дней</option>
-              <option>30 дней</option>
-              <option>90 дней</option>
+            <select 
+              value={bookingsPeriod}
+              onChange={(e) => setBookingsPeriod(e.target.value as '7' | '30' | '90')}
+              className="px-3 py-1 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="7">7 дней</option>
+              <option value="30">30 дней</option>
+              <option value="90">90 дней</option>
             </select>
           </div>
           <div className="h-64 flex items-end justify-between space-x-2">
-            {[55, 75, 48, 82, 69, 91, 78].map((height, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center">
-                <div
-                  className="w-full bg-gradient-to-t from-green-600 to-emerald-500 rounded-t-lg hover:opacity-80 transition cursor-pointer"
-                  style={{ height: `${height}%` }}
-                />
-                <span className="text-xs text-gray-600 mt-2">
-                  {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][i]}
+            {bookingsData.map((value, i) => {
+              const maxValue = Math.max(...bookingsData);
+              const height = maxValue > 0 ? (value / maxValue) * 100 : 0;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center group">
+                  <div className="relative">
+                    <div
+                      className="w-full bg-gradient-to-t from-green-600 to-emerald-500 rounded-t-lg hover:opacity-80 transition cursor-pointer"
+                      style={{ height: `${Math.max(height * 2, 5)}px`, minHeight: '5px' }}
+                    />
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                      {value} записей
+                    </div>
+                  </div>
+                  <span className="text-xs text-gray-600 mt-2">
+                    {bookingsPeriod === '7' 
+                      ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'][i]
+                      : bookingsPeriod === '30'
+                      ? i % 5 === 0 ? `${i + 1}` : ''
+                      : i % 15 === 0 ? `${i + 1}` : ''
+                    }
                 </span>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

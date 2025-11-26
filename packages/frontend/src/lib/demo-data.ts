@@ -227,41 +227,32 @@ export const demoBookings = [
   },
 ];
 
-// Функция для загрузки демо-данных
+// ДЕМО-ДАННЫЕ УДАЛЕНЫ - ВСЕ ДАННЫЕ ТОЛЬКО ИЗ БД
+// Эти функции оставлены для обратной совместимости, но ничего не делают
+
 export function loadDemoData() {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('demo-mode', 'true');
-    localStorage.setItem('demo-services', JSON.stringify(demoServices));
-    localStorage.setItem('demo-staff', JSON.stringify(demoStaff));
-    localStorage.setItem('demo-clients', JSON.stringify(demoClients));
-    localStorage.setItem('demo-bookings', JSON.stringify(demoBookings));
-  }
+  console.warn('Demo mode removed - all data from database only');
 }
 
-// Функция для очистки демо-данных
 export function clearDemoData() {
+  // Очищаем старые демо-данные если они есть
   if (typeof window !== 'undefined') {
     localStorage.removeItem('demo-mode');
+    localStorage.removeItem('demo-type');
     localStorage.removeItem('demo-services');
     localStorage.removeItem('demo-staff');
     localStorage.removeItem('demo-clients');
     localStorage.removeItem('demo-bookings');
+    localStorage.removeItem('qlink-staff');
+    localStorage.removeItem('qlink-business-data');
+    localStorage.removeItem('qlink-profile-data');
   }
 }
 
-// Проверка демо-режима
 export function isDemoMode(): boolean {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('demo-mode') === 'true';
-  }
-  return false;
+  return false; // Демо-режим отключен
 }
 
-// Получить демо-данные
-export function getDemoData(type: 'services' | 'staff' | 'clients' | 'bookings') {
-  if (typeof window !== 'undefined' && isDemoMode()) {
-    const data = localStorage.getItem(`demo-${type}`);
-    return data ? JSON.parse(data) : [];
-  }
-  return [];
+export function getDemoData(_type: 'services' | 'staff' | 'clients' | 'bookings') {
+  return []; // Всегда возвращаем пустой массив
 }

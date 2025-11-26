@@ -12,6 +12,8 @@ import {
   ToggleLeft,
   ToggleRight,
 } from 'lucide-react';
+import { loadDemoData } from '@/lib/demo-data';
+import { api } from '@/lib/api';
 
 interface Service {
   id: number;
@@ -38,22 +40,16 @@ export default function ServicesPage() {
     description: '',
   });
 
-  // Загружаем данные (демо или пустые)
+  // Загружаем данные из API
   const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
-    const loadDemoData = async () => {
-      if (typeof window !== 'undefined') {
-        const isDemoMode = localStorage.getItem('demo-mode') === 'true';
-        const demoType = localStorage.getItem('demo-type') || 'beauty';
-        
-        if (isDemoMode) {
-          try {
-            const { getDemoAccount } = await import('@/lib/demo-accounts');
-            const account = getDemoAccount(demoType as any);
-            setServices(account.services as any);
-          } catch (error) {
-            console.error('Failed to load demo data:', error);
+    const loadServices = async () => {
+      try {
+        const data = await api.getServices();
+        setServices(data);
+      } catch (error) {
+        console.error('Ошибка загрузки услуг:', error);
             // Fallback данные
             setServices([
           {

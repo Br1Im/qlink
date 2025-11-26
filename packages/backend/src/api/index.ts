@@ -12,6 +12,7 @@ import paymentsRoutes from './routes/payments';
 import loyaltyRoutes from './routes/loyalty';
 import notificationsRoutes from './routes/notifications';
 import exportRoutes from './routes/export';
+import dashboardRoutes from './routes/dashboard';
 
 const app = express();
 const PORT = process.env.API_PORT || 4000;
@@ -38,6 +39,7 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Статические файлы для экспорта
 app.use('/exports', express.static('exports'));

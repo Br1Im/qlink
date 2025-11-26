@@ -12,16 +12,52 @@ import {
   Star,
   MoreVertical,
 } from 'lucide-react';
+import { api } from '@/lib/api';
 
 export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingClient, setEditingClient] = useState<any>(null);
+  const [newClient, setNewClient] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    tags: [] as string[],
+  });
 
-  // Загружаем данные (демо или пустые)
+  // Загружаем данные (демо или из localStorage)
   const [clients, setClients] = useState<any[]>([]);
+
+  // Сохранение в localStorage при изменении
+  // Загрузка клиентов из API
+  useEffect(() => {
+    const loadClients = async () => {
+      try {
+        const data = await api.getClients();
+        setClients(data);
+      } catch (error) {
+        console.error('Ошибка загрузки клиентов:', error);
+      }
+    };
+    loadClients();
+  }, []);
 
   useEffect(() => {
     const loadDemoData = async () => {
       if (typeof window !== 'undefined') {
+        // Сначала пытаемся загрузить из localStorage
+        const savedClients = localStorage.getItem('qlink-clients');
+        if (savedClients) {
+          try {
+            setClients(JSON.parse(savedClients));
+            return;
+          } catch (error) {
+            console.error('Ошибка загрузки сохраненных клиентов:', error);
+          }
+        }
+        
         const isDemoMode = localStorage.getItem('demo-mode') === 'true';
         const demoType = localStorage.getItem('demo-type') || 'beauty';
         
@@ -97,7 +133,10 @@ export default function ClientsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Клиенты</h1>
           <p className="text-gray-600 mt-2">База клиентов и CRM</p>
         </div>
-        <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2"
+        >
           <Plus className="w-5 h-5" />
           <span>Добавить клиента</span>
         </button>
@@ -270,7 +309,14 @@ export default function ClientsPage() {
                 </div>
 
                 {/* Actions */}
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition ml-4">
+                <button 
+                  onClick={() => {
+                    setEditingClient(client);
+                    setIsEditModalOpen(true);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition ml-4"
+                  title="Редактировать"
+                >
                   <MoreVertical className="w-5 h-5 text-gray-600" />
                 </button>
               </div>
@@ -281,7 +327,7 @@ export default function ClientsPage() {
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">Показано 1-10 из 1,234 клиентов</p>
+        <p className="text-sm text-gray-600">Показано 1-{clients.length} из {clients.length} клиентов</p>
         <div className="flex items-center space-x-2">
           <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
             Назад
@@ -300,6 +346,266 @@ export default function ClientsPage() {
           </button>
         </div>
       </div>
+
+      {/* Add Client Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Добавить клиента</h2>
+              <p className="text-gray-600 mt-1">Заполните информацию о новом клиенте</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ФИО *
+                </label>
+                <input
+                  type="text"
+                  value={newClient.name}
+                  onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Иван Иванов"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Телефон *
+                </label>
+                <input
+                  type="tel"
+                  value={newClient.phone}
+                  onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="+7 (999) 123-45-67"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={newClient.email}
+                  onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="ivan@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Теги
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['VIP', 'Постоянный', 'Новый'].map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        if (newClient.tags.includes(tag)) {
+                          setNewClient({
+                            ...newClient,
+                            tags: newClient.tags.filter((t) => t !== tag),
+                          });
+                        } else {
+                          setNewClient({
+                            ...newClient,
+                            tags: [...newClient.tags, tag],
+                          });
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-lg border transition ${
+                        newClient.tags.includes(tag)
+                          ? 'bg-blue-100 border-blue-500 text-blue-700'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setNewClient({
+                    name: '',
+                    phone: '',
+                    email: '',
+                    tags: [],
+                  });
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={async () => {
+                  if (newClient.name && newClient.phone && newClient.email) {
+                    setIsLoading(true);
+                    try {
+                      const { api } = await import('@/lib/api');
+                      const result = await api.createClient({
+                        name: newClient.name,
+                        phone: newClient.phone,
+                        email: newClient.email,
+                        tags: newClient.tags.length > 0 ? newClient.tags : ['Новый'],
+                      });
+                      
+                      if (result.success) {
+                        const newClientData = {
+                          id: result.client.id,
+                          name: newClient.name,
+                          phone: newClient.phone,
+                          email: newClient.email,
+                          avatar: null,
+                          totalBookings: 0,
+                          totalSpent: 0,
+                          lastVisit: new Date().toISOString().split('T')[0],
+                          rating: 0,
+                          tags: newClient.tags.length > 0 ? newClient.tags : ['Новый'],
+                        };
+                        setClients([...clients, newClientData]);
+                        setIsAddModalOpen(false);
+                        setNewClient({
+                          name: '',
+                          phone: '',
+                          email: '',
+                          tags: [],
+                        });
+                      }
+                    } catch (error: any) {
+                      alert(error.message || 'Ошибка создания клиента');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  } else {
+                    alert('Пожалуйста, заполните все обязательные поля');
+                  }
+                }}
+                disabled={isLoading}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50"
+              >
+                {isLoading ? 'Добавление...' : 'Добавить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Client Modal */}
+      {isEditModalOpen && editingClient && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Редактировать клиента</h2>
+              <p className="text-gray-600 mt-1">Измените информацию о клиенте</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ФИО *
+                </label>
+                <input
+                  type="text"
+                  value={editingClient.name}
+                  onChange={(e) => setEditingClient({ ...editingClient, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Телефон *
+                </label>
+                <input
+                  type="tel"
+                  value={editingClient.phone}
+                  onChange={(e) => setEditingClient({ ...editingClient, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={editingClient.email}
+                  onChange={(e) => setEditingClient({ ...editingClient, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Теги
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['VIP', 'Постоянный', 'Новый'].map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        if (editingClient.tags.includes(tag)) {
+                          setEditingClient({
+                            ...editingClient,
+                            tags: editingClient.tags.filter((t: string) => t !== tag),
+                          });
+                        } else {
+                          setEditingClient({
+                            ...editingClient,
+                            tags: [...editingClient.tags, tag],
+                          });
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-lg border transition ${
+                        editingClient.tags.includes(tag)
+                          ? 'bg-blue-100 border-blue-500 text-blue-700'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingClient(null);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => {
+                  const updatedClients = clients.map(c => 
+                    c.id === editingClient.id ? editingClient : c
+                  );
+                  setClients(updatedClients);
+                  setIsEditModalOpen(false);
+                  setEditingClient(null);
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition"
+              >
+                Сохранить изменения
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

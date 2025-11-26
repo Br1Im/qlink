@@ -4,36 +4,37 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useToast } from '@/components/Toast';
+import Button from '@/components/Button';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    
-    console.log('Login:', { email, password });
 
     try {
       const data = await api.login({ email, password });
-      console.log('Login success:', data);
       
-      // Сохраняем токен
+      // Сохраняем токен в cookie
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        document.cookie = `qlink_auth_token=${data.token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Strict`;
       }
       
+      toast.success('Вход выполнен успешно!');
+      
       // Перенаправление на dashboard
-      window.location.href = '/dashboard';
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 500);
       
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Произошла ошибка при входе');
+      toast.error(err.message || 'Произошла ошибка при входе');
     } finally {
       setLoading(false);
     }
@@ -63,12 +64,6 @@ export default function LoginPage() {
                 Войдите в панель управления Qlink
               </p>
             </div>
-
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -117,13 +112,14 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <button
+              <Button
                 type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                loading={loading}
+                fullWidth
+                variant="primary"
               >
-                {loading ? 'Вход...' : 'Войти'}
-              </button>
+                Войти
+              </Button>
             </form>
 
             <div className="mt-6 text-center">

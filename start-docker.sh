@@ -1,0 +1,52 @@
+#!/bin/bash
+
+echo "🚀 Запуск Qlink через Docker..."
+
+# Остановка и удаление старых контейнеров
+echo "🧹 Очистка старых контейнеров..."
+docker-compose down -v
+
+# Запуск PostgreSQL
+echo "🐘 Запуск PostgreSQL..."
+docker-compose up -d postgres
+
+# Ждем пока PostgreSQL запустится
+echo "⏳ Ожидание запуска PostgreSQL..."
+sleep 10
+
+# Запуск Redis
+echo "🔴 Запуск Redis..."
+docker-compose up -d redis
+
+# Ждем пока Redis запустится
+echo "⏳ Ожидание запуска Redis..."
+sleep 5
+
+# Запуск Backend
+echo "⚙️  Запуск Backend..."
+docker-compose up -d backend
+
+# Ждем пока Backend запустится
+echo "⏳ Ожидание запуска Backend..."
+sleep 15
+
+# Запуск Frontend
+echo "🎨 Запуск Frontend..."
+docker-compose up -d frontend
+
+echo ""
+echo "✅ Все сервисы запущены!"
+echo ""
+echo "📍 Доступные URL:"
+echo "   Frontend: http://localhost:3001"
+echo "   Backend API: http://localhost:4000"
+echo "   Backend Bot: http://localhost:3000"
+echo "   PostgreSQL: localhost:5432"
+echo "   Redis: localhost:6379"
+echo ""
+echo "📊 Проверить статус:"
+echo "   docker-compose ps"
+echo ""
+echo "📝 Посмотреть логи:"
+echo "   docker-compose logs -f"
+echo ""

@@ -1,5 +1,5 @@
 # Development Backend Dockerfile with hot reload
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 

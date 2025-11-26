@@ -4,12 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { api } from '@/lib/api';
+import { useToast } from '@/components/Toast';
+import Button from '@/components/Button';
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const toast = useToast();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -25,25 +27,27 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    
-    console.log('Form data:', formData);
 
     try {
       const data = await api.register(formData);
-      console.log('Registration success:', data);
+      
+      // Сохраняем токен в cookie
+      if (data.token) {
+        document.cookie = `qlink_auth_token=${data.token}; path=/; max-age=${30 * 24 * 60 * 60}; SameSite=Strict`;
+      }
       
       setSuccess(true);
       setStep(3);
+      toast.success('Регистрация успешна!');
       
       // Перенаправление через 2 секунды
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = '/dashboard';
       }, 2000);
       
     } catch (err: any) {
       console.error('Registration error:', err);
-      setError(err.message || 'Произошла ошибка при регистрации');
+      toast.error(err.message || 'Произошла ошибка при регистрации');
     } finally {
       setLoading(false);
     }
@@ -125,22 +129,6 @@ export default function RegisterPage() {
 
           {/* Form */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            {/* Error Message */}
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            )}
-
-            {/* Success Message */}
-            {success && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-600 text-sm">
-                  ✅ Регистрация успешна! Перенаправление на страницу входа...
-                </p>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit}>
               {step === 1 && (
                 <div className="space-y-6">
@@ -230,13 +218,14 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition"
+                    fullWidth
+                    variant="primary"
                   >
                     Продолжить
-                  </button>
+                  </Button>
                 </div>
               )}
 
@@ -340,21 +329,23 @@ export default function RegisterPage() {
                   </div>
 
                   <div className="flex space-x-4">
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setStep(1)}
                       disabled={loading}
-                      className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      variant="outline"
+                      className="flex-1"
                     >
                       Назад
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="submit"
-                      disabled={loading}
-                      className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      loading={loading}
+                      variant="primary"
+                      className="flex-1"
                     >
-                      {loading ? 'Регистрация...' : 'Зарегистрироваться'}
-                    </button>
+                      Зарегистрироваться
+                    </Button>
                   </div>
                 </div>
               )}

@@ -14,23 +14,33 @@ import {
   Phone,
   Mail,
 } from 'lucide-react';
+import { loadDemoData } from '@/lib/demo-data';
+import { api } from '@/lib/api';
 
 export default function StaffPage() {
-  // Загружаем данные (демо или пустые)
+  // Загружаем данные (демо или из localStorage)
   const [staff, setStaff] = useState<any[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingStaff, setEditingStaff] = useState<any>(null);
+  const [newStaff, setNewStaff] = useState({
+    name: '',
+    position: '',
+    phone: '',
+    email: '',
+    workingHours: '',
+  });
 
+  // Загрузка данных из API
   useEffect(() => {
-    const loadDemoData = async () => {
-      if (typeof window !== 'undefined') {
-        const isDemoMode = localStorage.getItem('demo-mode') === 'true';
-        const demoType = localStorage.getItem('demo-type') || 'beauty';
-        
-        if (isDemoMode) {
-          try {
-            const { getDemoAccount } = await import('@/lib/demo-accounts');
-            const account = getDemoAccount(demoType as any);
-            setStaff(account.staff);
-          } catch (error) {
+    const loadStaff = async () => {
+      try {
+        const data = await api.getStaff();
+        setStaff(data);
+      } catch (error) {
+        console.error('Ошибка загрузки сотрудников:', error);
+        // Показываем пустой список если API недоступен
             setStaff([
           {
             id: 1,
@@ -91,7 +101,10 @@ export default function StaffPage() {
           <h1 className="text-3xl font-bold text-gray-900">Сотрудники</h1>
           <p className="text-gray-600 mt-2">Управление командой</p>
         </div>
-        <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2"
+        >
           <Plus className="w-5 h-5" />
           <span>Добавить сотрудника</span>
         </button>
@@ -258,11 +271,25 @@ export default function StaffPage() {
 
               {/* Actions */}
               <div className="flex items-center space-x-2 pt-4 border-t border-gray-200">
-                <button className="flex-1 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition flex items-center justify-center space-x-2">
+                <button 
+                  onClick={() => {
+                    setEditingStaff(member);
+                    setIsEditModalOpen(true);
+                  }}
+                  className="flex-1 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition flex items-center justify-center space-x-2"
+                >
                   <Edit className="w-4 h-4" />
                   <span>Редактировать</span>
                 </button>
-                <button className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">
+                <button 
+                  onClick={() => {
+                    if (confirm(`Удалить сотрудника ${member.name}?`)) {
+                      setStaff(staff.filter(s => s.id !== member.id));
+                    }
+                  }}
+                  className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
+                  title="Удалить"
+                >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -271,7 +298,10 @@ export default function StaffPage() {
         ))}
 
         {/* Add Staff Card */}
-        <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-12 hover:border-blue-500 transition cursor-pointer flex items-center justify-center">
+        <div 
+          onClick={() => setIsAddModalOpen(true)}
+          className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-12 hover:border-blue-500 transition cursor-pointer flex items-center justify-center"
+        >
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Plus className="w-8 h-8 text-gray-600" />
@@ -285,6 +315,255 @@ export default function StaffPage() {
           </div>
         </div>
       </div>
+
+      {/* Add Staff Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Добавить сотрудника</h2>
+              <p className="text-gray-600 mt-1">Заполните информацию о новом сотруднике</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ФИО *
+                </label>
+                <input
+                  type="text"
+                  value={newStaff.name}
+                  onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Иван Иванов"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Должность *
+                </label>
+                <input
+                  type="text"
+                  value={newStaff.position}
+                  onChange={(e) => setNewStaff({ ...newStaff, position: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Мастер"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Телефон *
+                </label>
+                <input
+                  type="tel"
+                  value={newStaff.phone}
+                  onChange={(e) => setNewStaff({ ...newStaff, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="+7 (999) 123-45-67"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={newStaff.email}
+                  onChange={(e) => setNewStaff({ ...newStaff, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="ivan@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  График работы
+                </label>
+                <input
+                  type="text"
+                  value={newStaff.workingHours}
+                  onChange={(e) => setNewStaff({ ...newStaff, workingHours: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Пн-Пт: 10:00-19:00"
+                />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setNewStaff({
+                    name: '',
+                    position: '',
+                    phone: '',
+                    email: '',
+                    workingHours: '',
+                  });
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={async () => {
+                  if (newStaff.name && newStaff.position && newStaff.phone && newStaff.email) {
+                    setIsLoading(true);
+                    try {
+                      const { api } = await import('@/lib/api');
+                      const result = await api.createStaff({
+                        name: newStaff.name,
+                        position: newStaff.position,
+                        phone: newStaff.phone,
+                        email: newStaff.email,
+                        workingHours: newStaff.workingHours || 'Не указан',
+                      });
+                      
+                      if (result.success) {
+                        const newMember = {
+                          id: result.staff.id,
+                          name: newStaff.name,
+                          position: newStaff.position,
+                          phone: newStaff.phone,
+                          email: newStaff.email,
+                          avatar: null,
+                          rating: 0,
+                          bookings: 0,
+                          revenue: 0,
+                          isActive: true,
+                          services: [],
+                          workingHours: newStaff.workingHours || 'Не указан',
+                        };
+                        setStaff([...staff, newMember]);
+                        setIsAddModalOpen(false);
+                        setNewStaff({
+                          name: '',
+                          position: '',
+                          phone: '',
+                          email: '',
+                          workingHours: '',
+                        });
+                      }
+                    } catch (error: any) {
+                      alert(error.message || 'Ошибка создания сотрудника');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  } else {
+                    alert('Пожалуйста, заполните все обязательные поля');
+                  }
+                }}
+                disabled={isLoading}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50"
+              >
+                {isLoading ? 'Добавление...' : 'Добавить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Staff Modal */}
+      {isEditModalOpen && editingStaff && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Редактировать сотрудника</h2>
+              <p className="text-gray-600 mt-1">Измените информацию о сотруднике</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ФИО *
+                </label>
+                <input
+                  type="text"
+                  value={editingStaff.name}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Должность *
+                </label>
+                <input
+                  type="text"
+                  value={editingStaff.position}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, position: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Телефон *
+                </label>
+                <input
+                  type="tel"
+                  value={editingStaff.phone}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={editingStaff.email}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  График работы
+                </label>
+                <input
+                  type="text"
+                  value={editingStaff.workingHours}
+                  onChange={(e) => setEditingStaff({ ...editingStaff, workingHours: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingStaff(null);
+                }}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => {
+                  const updatedStaff = staff.map(s => 
+                    s.id === editingStaff.id ? editingStaff : s
+                  );
+                  setStaff(updatedStaff);
+                  setIsEditModalOpen(false);
+                  setEditingStaff(null);
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition"
+              >
+                Сохранить изменения
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

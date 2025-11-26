@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -15,6 +15,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import ApiStatus from '@/components/ApiStatus';
 
 export default function DashboardLayout({
   children,
@@ -25,16 +26,26 @@ export default function DashboardLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Проверка аутентификации на клиенте
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cookies = document.cookie.split(';');
+      const hasToken = cookies.some(c => c.trim().startsWith('qlink_auth_token='));
+      
+      if (!hasToken) {
+        router.push('/login');
+      }
+    }
+  }, [router]);
+
   const handleLogout = () => {
     // Подтверждение выхода
     const confirmed = confirm('Вы уверены, что хотите выйти?');
     
     if (confirmed) {
-      // Очищаем localStorage
+      // Удаляем токен из cookies
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('demo-mode');
-        localStorage.removeItem('auth-token');
-        localStorage.removeItem('user-data');
+        document.cookie = 'qlink_auth_token=; path=/; max-age=0';
       }
       
       // Перенаправляем на главную страницу
@@ -138,6 +149,9 @@ export default function DashboardLayout({
       <main className="lg:ml-64 min-h-screen">
         <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">{children}</div>
       </main>
+      
+      {/* API Status Warning */}
+      <ApiStatus />
     </div>
   );
 }

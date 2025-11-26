@@ -5,6 +5,61 @@ import { authMiddleware } from '../middleware/auth';
 const router = Router();
 const prisma = new PrismaClient();
 
+// Получить услуги бизнеса
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const ownerId = (req as any).user.id;
+
+    // Получаем бизнес владельца
+    const businesses = await prisma.business.findMany({
+      where: { ownerId },
+    });
+
+    if (businesses.length === 0) {
+      return res.json([]);
+    }
+
+    const businessId = businesses[0].id;
+
+    const services = await prisma.service.findMany({
+      where: { businessId },
+      include: {
+        serviceStaff: {
+          include: {
+            staff: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            bookings: true,
+          },
+        },
+      },
+    });
+
+    res.json(services.map((service: any) => ({
+      id: service.id,
+      name: service.name,
+      description: service.description,
+      category: service.category,
+      price: service.price,
+      duration: service.duration,
+      image: service.image,
+      staff: service.serviceStaff.map((ss: any) => `${ss.staff.firstName} ${ss.staff.lastName}`),
+      bookings: service._count.bookings,
+      isActive: true,
+    })));
+  } catch (error) {
+    console.error('Get services error:', error);
+    res.status(500).json({ error: 'Ошибка получения услуг' });
+  }
+});
+
 // Создать услугу
 router.post('/', authMiddleware, async (req, res) => {
   try {

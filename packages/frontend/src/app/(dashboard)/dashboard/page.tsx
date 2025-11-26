@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { api } from '@/lib/api';
 import {
   Calendar,
   Users,
@@ -47,77 +48,25 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const isDemoMode = typeof window !== 'undefined' && localStorage.getItem('demo-mode') === 'true';
-      const demoType = typeof window !== 'undefined' ? localStorage.getItem('demo-type') || 'beauty' : 'beauty';
+      // Пытаемся загрузить данные из API
+      const response = await api.getDashboardStats();
       
-      if (isDemoMode) {
-        // Загружаем демо-данные из модуля
-        const { getDemoAccount } = await import('@/lib/demo-accounts');
-        const account = getDemoAccount(demoType as any);
-        
-        setStats(account.stats);
-        setBookings(account.bookings.slice(0, 3).map(b => ({
-          id: b.id.toString(),
-          clientName: b.client,
-          serviceName: b.service,
-          price: b.price,
-          date: 'Сегодня',
-          time: `${b.time} - ${b.time}`,
-          status: b.status,
-        })));
-        setIsNewUser(false);
-      } else {
-        // Пустые данные для новых пользователей
-        setStats({
-          bookingsToday: 0,
-          newClients: 0,
-          revenueToday: 0,
-          averageCheck: 0,
-        });
-        setBookings([]);
-        setIsNewUser(true);
-      }
-      
+      setStats(response.stats);
+      setBookings(response.recentBookings || []);
+      setIsNewUser(response.isNewUser || false);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
-      // Fallback данные
+      
+      // Если API недоступен - показываем пустое состояние
       setStats({
-        bookingsToday: 8,
-        newClients: 3,
-        revenueToday: 12500,
-        averageCheck: 1562,
+        bookingsToday: 0,
+        newClients: 0,
+        revenueToday: 0,
+        averageCheck: 0,
       });
-      setBookings([
-        {
-          id: '1',
-          clientName: 'Анна Иванова',
-          serviceName: 'Стрижка женская',
-          price: 1500,
-          date: 'Сегодня',
-          time: '14:00 - 15:30',
-          status: 'confirmed',
-        },
-        {
-          id: '2',
-          clientName: 'Дмитрий Смирнов',
-          serviceName: 'Стрижка мужская',
-          price: 800,
-          date: 'Сегодня',
-          time: '15:30 - 16:15',
-          status: 'confirmed',
-        },
-        {
-          id: '3',
-          clientName: 'Елена Козлова',
-          serviceName: 'Окрашивание',
-          price: 3000,
-          date: 'Сегодня',
-          time: '17:00 - 19:00',
-          status: 'pending',
-        },
-      ]);
-      setIsNewUser(false);
+      setBookings([]);
+      setIsNewUser(true);
       setLoading(false);
     }
   };
@@ -150,41 +99,8 @@ export default function DashboardPage() {
                 Добро пожаловать в Qlink! 🎉
               </h2>
               <p className="text-blue-100 mb-4">
-                Начните настройку вашего бизнеса или попробуйте демо-режим с готовыми данными.
+                Начните настройку вашего бизнеса - добавьте услуги и сотрудников.
               </p>
-              
-              {/* Выбор типа демо-аккаунта */}
-              <div className="mb-4">
-                <p className="text-sm text-blue-100 mb-2">Выберите тип бизнеса для демо:</p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => {
-                      if (typeof window !== 'undefined') {
-                        localStorage.setItem('demo-mode', 'true');
-                        localStorage.setItem('demo-type', 'beauty');
-                        window.location.reload();
-                      }
-                    }}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    💇 Салон красоты
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (typeof window !== 'undefined') {
-                        localStorage.setItem('demo-mode', 'true');
-                        localStorage.setItem('demo-type', 'fitness');
-                        window.location.reload();
-                      }
-                    }}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    💪 Фитнес-центр
-                  </button>
-                </div>
-              </div>
 
               <div className="flex flex-wrap gap-3">
                 <Link
@@ -198,6 +114,12 @@ export default function DashboardPage() {
                   className="px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition"
                 >
                   Добавить сотрудников
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  className="px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition"
+                >
+                  Настройки бизнеса
                 </Link>
               </div>
             </div>

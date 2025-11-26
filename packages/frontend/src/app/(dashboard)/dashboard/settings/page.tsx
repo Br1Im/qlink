@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 import {
   Building,
   User,
@@ -17,6 +18,67 @@ import {
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('business');
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  
+  // Загрузка данных из API при инициализации
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const data = await api.getSettings();
+        if (data.business) setBusinessData(data.business);
+        if (data.profile) setProfileData(data.profile);
+      } catch (error) {
+        console.error('Ошибка загрузки настроек:', error);
+      }
+    };
+    loadSettings();
+  }, []);
+  
+  // Состояние для бизнес-информации
+  const [businessData, setBusinessData] = useState(() => 
+    loadFromStorage('qlink-business-data', {
+      name: 'Салон Красота',
+      category: 'Красота',
+      description: 'Современный салон красоты в центре города',
+      phone: '+7 (495) 123-45-67',
+      email: 'info@salon.com',
+      address: 'Москва, ул. Тверская, 10',
+    })
+  );
+  
+  // Состояние для профиля
+  const [profileData, setProfileData] = useState(() =>
+    loadFromStorage('qlink-profile-data', {
+      firstName: 'Иван',
+      lastName: 'Иванов',
+      email: 'ivan@example.com',
+      phone: '+7 (999) 123-45-67',
+    })
+  );
+  
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Симуляция сохранения
+      // Сохранение через API
+      if (activeTab === 'business') {
+        await api.updateSettings({ type: 'business', data: businessData });
+      } else if (activeTab === 'profile') {
+        await api.updateSettings({ type: 'profile', data: profileData });
+      }
+      
+      // Здесь будет API вызов для сохранения данных в backend
+      console.log('Сохранение данных:', activeTab === 'business' ? businessData : profileData);
+      
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (error) {
+      alert('Ошибка сохранения данных');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const tabs = [
     { id: 'business', name: 'Бизнес', icon: Building },
@@ -77,7 +139,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="Салон Красота"
+                    value={businessData.name}
+                    onChange={(e) => setBusinessData({ ...businessData, name: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -86,7 +149,11 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Категория
                   </label>
-                  <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <select 
+                    value={businessData.category}
+                    onChange={(e) => setBusinessData({ ...businessData, category: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
                     <option>Красота</option>
                     <option>Медицина</option>
                     <option>Спорт</option>
@@ -101,7 +168,8 @@ export default function SettingsPage() {
                 </label>
                 <textarea
                   rows={4}
-                  defaultValue="Современный салон красоты в центре города"
+                  value={businessData.description}
+                  onChange={(e) => setBusinessData({ ...businessData, description: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -114,7 +182,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="tel"
-                    defaultValue="+7 (495) 123-45-67"
+                    value={businessData.phone}
+                    onChange={(e) => setBusinessData({ ...businessData, phone: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -126,7 +195,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="email"
-                    defaultValue="info@salon.com"
+                    value={businessData.email}
+                    onChange={(e) => setBusinessData({ ...businessData, email: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -139,7 +209,8 @@ export default function SettingsPage() {
                 </label>
                 <input
                   type="text"
-                  defaultValue="Москва, ул. Тверская, 10"
+                  value={businessData.address}
+                  onChange={(e) => setBusinessData({ ...businessData, address: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -184,11 +255,25 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2">
+                <button 
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <Save className="w-5 h-5" />
-                  <span>Сохранить изменения</span>
+                  <span>{isSaving ? 'Сохранение...' : 'Сохранить изменения'}</span>
                 </button>
               </div>
+              
+              {/* Success Message */}
+              {showSuccess && (
+                <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in z-50">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Изменения успешно сохранены!</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -221,7 +306,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="Иван"
+                    value={profileData.firstName}
+                    onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -232,7 +318,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="Иванов"
+                    value={profileData.lastName}
+                    onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -245,7 +332,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="email"
-                    defaultValue="ivan@example.com"
+                    value={profileData.email}
+                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -256,18 +344,33 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="tel"
-                    defaultValue="+7 (999) 123-45-67"
+                    value={profileData.phone}
+                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
               <div className="flex justify-end">
-                <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2">
+                <button 
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg transition flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <Save className="w-5 h-5" />
-                  <span>Сохранить изменения</span>
+                  <span>{isSaving ? 'Сохранение...' : 'Сохранить изменения'}</span>
                 </button>
               </div>
+              
+              {/* Success Message */}
+              {showSuccess && (
+                <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-fade-in z-50">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Изменения успешно сохранены!</span>
+                </div>
+              )}
             </div>
           )}
 
