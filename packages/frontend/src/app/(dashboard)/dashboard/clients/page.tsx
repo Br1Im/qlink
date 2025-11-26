@@ -27,11 +27,9 @@ export default function ClientsPage() {
     tags: [] as string[],
   });
 
-  // Загружаем данные (демо или из localStorage)
+  // Загрузка клиентов из API
   const [clients, setClients] = useState<any[]>([]);
 
-  // Сохранение в localStorage при изменении
-  // Загрузка клиентов из API
   useEffect(() => {
     const loadClients = async () => {
       try {
@@ -39,90 +37,12 @@ export default function ClientsPage() {
         setClients(data);
       } catch (error) {
         console.error('Ошибка загрузки клиентов:', error);
-      }
-    };
-    loadClients();
-  }, []);
-
-  useEffect(() => {
-    const loadDemoData = async () => {
-      if (typeof window !== 'undefined') {
-        // Сначала пытаемся загрузить из localStorage
-        const savedClients = localStorage.getItem('qlink-clients');
-        if (savedClients) {
-          try {
-            setClients(JSON.parse(savedClients));
-            return;
-          } catch (error) {
-            console.error('Ошибка загрузки сохраненных клиентов:', error);
-          }
-        }
-        
-        const isDemoMode = localStorage.getItem('demo-mode') === 'true';
-        const demoType = localStorage.getItem('demo-type') || 'beauty';
-        
-        if (isDemoMode) {
-          try {
-            const { getDemoAccount } = await import('@/lib/demo-accounts');
-            const account = getDemoAccount(demoType as any);
-            setClients(account.clients);
-          } catch (error) {
-            setClients([
-          {
-            id: 1,
-            name: 'Анна Иванова',
-            phone: '+7 (999) 123-45-67',
-            email: 'anna@example.com',
-            avatar: null,
-            totalBookings: 12,
-            totalSpent: 18000,
-            lastVisit: '2024-11-20',
-            rating: 5,
-            tags: ['VIP', 'Постоянный'],
-          },
-          {
-            id: 2,
-            name: 'Дмитрий Смирнов',
-            phone: '+7 (999) 234-56-78',
-            email: 'dmitry@example.com',
-            avatar: null,
-            totalBookings: 5,
-            totalSpent: 10000,
-            lastVisit: '2024-11-18',
-            rating: 4,
-            tags: ['Постоянный'],
-          },
-          {
-            id: 3,
-            name: 'Елена Козлова',
-            phone: '+7 (999) 345-67-89',
-            email: 'elena@example.com',
-            avatar: null,
-            totalBookings: 1,
-            totalSpent: 3000,
-            lastVisit: '2024-11-15',
-            rating: 5,
-            tags: ['Новый'],
-          },
-          {
-            id: 4,
-            name: 'Сергей Петров',
-            phone: '+7 (999) 456-78-90',
-            email: 'sergey@example.com',
-            avatar: null,
-            totalBookings: 8,
-            totalSpent: 12000,
-            lastVisit: '2024-11-19',
-            rating: 5,
-            tags: ['VIP'],
-          },
-        ]);
-          }
-        }
+        // Показываем пустой список если API недоступен
+        setClients([]);
       }
     };
     
-    loadDemoData();
+    loadClients();
   }, []);
 
   return (
