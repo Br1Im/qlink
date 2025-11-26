@@ -46,14 +46,12 @@ export default function SettingsPage() {
   });
   
   // Состояние для профиля
-  const [profileData, setProfileData] = useState(() =>
-    loadFromStorage('qlink-profile-data', {
-      firstName: 'Иван',
-      lastName: 'Иванов',
-      email: 'ivan@example.com',
-      phone: '+7 (999) 123-45-67',
-    })
-  );
+  const [profileData, setProfileData] = useState({
+    firstName: 'Иван',
+    lastName: 'Иванов',
+    email: 'ivan@example.com',
+    phone: '+7 (999) 123-45-67',
+  });
   
   const handleSave = async () => {
     setIsSaving(true);
