@@ -79,7 +79,7 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: qlink-frontend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_API_URL: http://217.114.7.3:4000
       NODE_ENV: production
       PORT: 3000
       HOSTNAME: "0.0.0.0"
