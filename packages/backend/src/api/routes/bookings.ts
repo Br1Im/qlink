@@ -5,6 +5,68 @@ import { authMiddleware } from '../middleware/auth';
 const router = Router();
 const prisma = new PrismaClient();
 
+// Получить все записи (для владельца бизнеса)
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    
+    // Найти бизнесы пользователя
+    const businesses = await prisma.business.findMany({
+      where: { ownerId: user.id },
+      select: { id: true },
+    });
+    
+    const businessIds = businesses.map(b => b.id);
+    
+    // Получить записи для всех бизнесов пользователя
+    const bookings = await prisma.booking.findMany({
+      where: {
+        businessId: { in: businessIds },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            email: true,
+          },
+        },
+        business: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        service: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            duration: true,
+          },
+        },
+        staff: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+    
+    res.json(bookings);
+  } catch (error) {
+    console.error('Ошибка получения записей:', error);
+    res.status(500).json({ error: 'Ошибка получения записей' });
+  }
+});
+
 // Создать запись
 router.post('/', async (req, res) => {
   try {
