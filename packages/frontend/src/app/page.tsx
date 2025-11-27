@@ -141,7 +141,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative flex justify-center md:justify-end">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl blur-3xl opacity-20"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl blur-3xl opacity-20 pointer-events-none"></div>
             <div className="relative space-y-4 w-full max-w-xl">
               {/* Badge */}
               <div className="flex justify-center md:justify-end animate-fade-in">
@@ -213,7 +213,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             <ScrollReveal delay={100}>
               <div className="group relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
               <div className="relative p-8 bg-white rounded-3xl border-2 border-gray-100 hover:border-blue-200 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                   <MapPin className="w-8 h-8 text-white" strokeWidth={2.5} />
@@ -248,7 +248,7 @@ export default function Home() {
 
             <ScrollReveal delay={200}>
               <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
                 <div className="relative p-8 bg-white rounded-3xl border-2 border-gray-100 hover:border-blue-200 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                     <Zap className="w-8 h-8 text-white" strokeWidth={2.5} />
@@ -283,7 +283,7 @@ export default function Home() {
 
             <ScrollReveal delay={300}>
               <div className="group relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
                 <div className="relative p-8 bg-white rounded-3xl border-2 border-gray-100 hover:border-blue-200 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                     <Bell className="w-8 h-8 text-white" strokeWidth={2.5} />
