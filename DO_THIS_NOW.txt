@@ -1,0 +1,59 @@
+═══════════════════════════════════════════════════════════
+  ВЫПОЛНИТЕ ЭТИ КОМАНДЫ НА СЕРВЕРЕ ПРЯМО СЕЙЧАС
+═══════════════════════════════════════════════════════════
+
+Backend контейнер упал. Нужно его восстановить.
+
+ВАРИАНТ 1 - АВТОМАТИЧЕСКИЙ (РЕКОМЕНДУЕТСЯ):
+────────────────────────────────────────────
+
+cd ~/qlink
+git pull origin main
+chmod +x RESTORE_BACKEND.sh
+./RESTORE_BACKEND.sh
+
+
+ВАРИАНТ 2 - РУЧНОЙ (если автоматический не работает):
+──────────────────────────────────────────────────────
+
+cd ~/qlink
+
+# Удалить старые контейнеры
+docker rm -f $(docker ps -aq --filter name=backend)
+
+# Получить обновления
+git pull origin main
+
+# Пересобрать
+docker-compose build backend --no-cache
+
+# Запустить
+docker-compose up -d backend
+
+# Подождать
+sleep 30
+
+# Проверить
+docker logs qlink-backend --tail 50
+
+# Создать тестового пользователя
+docker exec qlink-backend node /app/packages/backend/scripts/create-test-user.js
+
+
+ПОСЛЕ ВЫПОЛНЕНИЯ:
+─────────────────
+
+1. Откройте: https://q-link.tech/login
+2. Войдите с данными:
+   Email: test@qlink.tech
+   Password: Test123456
+
+
+ЕСЛИ ПРОБЛЕМЫ:
+──────────────
+
+Пришлите вывод команд:
+docker ps -a
+docker logs qlink-backend --tail 100
+
+═══════════════════════════════════════════════════════════
