@@ -44,8 +44,12 @@ app.use('/api/dashboard', dashboardRoutes);
 // Статические файлы для экспорта
 app.use('/exports', express.static('exports'));
 
-// Health check
+// Health check (доступен на обоих путях)
 app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
