@@ -66,7 +66,7 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
       <AnimateOnScroll />
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
+      <header className="container mx-auto px-4 py-6 relative z-50">
         <nav className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -88,7 +88,7 @@ export default function Home() {
             </a>
             <Link
               href="/login"
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition"
+              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition relative z-10 cursor-pointer"
             >
               Войти
             </Link>
@@ -111,16 +111,16 @@ export default function Home() {
               Найдите ближайший салон красоты, барбершоп или медицинский центр.
               Запишитесь онлайн без звонков и ожидания.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 relative z-10">
               <Link
                 href="/map"
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-xl transition transform hover:-translate-y-1"
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
               >
                 Найти заведение
               </Link>
               <Link
                 href="/register"
-                className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold border-2 border-gray-200 hover:border-blue-600 transition"
+                className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold border-2 border-gray-200 hover:border-blue-600 transition cursor-pointer"
               >
                 Для владельцев
               </Link>
