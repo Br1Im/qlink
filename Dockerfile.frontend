@@ -1,6 +1,10 @@
 # Frontend Dockerfile - Production Build
 FROM node:20-alpine
 
+# Accept build argument
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 WORKDIR /app
 
 # Create root tsconfig.json
@@ -23,7 +27,7 @@ COPY packages/frontend/tsconfig.json ./
 # Copy all source files
 COPY packages/frontend ./
 
-# Build the application
+# Build the application with API URL
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
