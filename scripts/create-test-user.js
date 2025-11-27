@@ -5,15 +5,15 @@ const prisma = new PrismaClient();
 
 async function createTestUser() {
   try {
-    console.log('🔧 Создание тестового пользователя...');
+    console.log('🔧 Создание тестового владельца бизнеса...');
     
-    // Проверяем существует ли пользователь
-    const existingUser = await prisma.user.findUnique({
+    // Проверяем существует ли владелец
+    const existingOwner = await prisma.businessOwner.findUnique({
       where: { email: 'test@qlink.tech' }
     });
     
-    if (existingUser) {
-      console.log('✅ Тестовый пользователь уже существует');
+    if (existingOwner) {
+      console.log('✅ Тестовый владелец уже существует');
       console.log('📧 Email: test@qlink.tech');
       console.log('🔑 Password: Test123456');
       return;
@@ -22,32 +22,30 @@ async function createTestUser() {
     // Хешируем пароль
     const hashedPassword = await bcrypt.hash('Test123456', 10);
     
-    // Создаем пользователя
-    const user = await prisma.user.create({
+    // Создаем владельца бизнеса
+    const owner = await prisma.businessOwner.create({
       data: {
         email: 'test@qlink.tech',
         password: hashedPassword,
         firstName: 'Тест',
         lastName: 'Пользователь',
-        phone: '+7 (999) 123-45-67',
-        role: 'BUSINESS_OWNER',
-        isEmailVerified: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        phone: '+79991234567',
+        isVerified: true
       }
     });
     
-    // Создаем бизнес для пользователя
+    // Создаем бизнес для владельца
     const business = await prisma.business.create({
       data: {
         name: 'Тестовый Салон',
+        slug: 'testovyy-salon',
         description: 'Тестовый салон красоты для демонстрации',
         category: 'BEAUTY',
         address: 'Москва, ул. Тестовая, 1',
-        phone: '+7 (495) 123-45-67',
+        phone: '+74951234567',
         email: 'salon@qlink.tech',
         website: 'https://q-link.tech',
-        ownerId: user.id,
+        ownerId: owner.id,
         isActive: true,
         isVerified: true,
         rating: 4.8,
@@ -60,9 +58,7 @@ async function createTestUser() {
           friday: { open: '09:00', close: '21:00', isOpen: true },
           saturday: { open: '10:00', close: '20:00', isOpen: true },
           sunday: { open: '10:00', close: '18:00', isOpen: true }
-        },
-        createdAt: new Date(),
-        updatedAt: new Date()
+        }
       }
     });
     
@@ -96,7 +92,7 @@ async function createTestUser() {
       ]
     });
     
-    console.log('✅ Тестовый пользователь создан успешно!');
+    console.log('✅ Тестовый владелец бизнеса создан успешно!');
     console.log('');
     console.log('📧 Email: test@qlink.tech');
     console.log('🔑 Password: Test123456');
@@ -105,7 +101,7 @@ async function createTestUser() {
     console.log('Теперь вы можете войти в систему с этими данными!');
     
   } catch (error) {
-    console.error('❌ Ошибка при создании тестового пользователя:', error);
+    console.error('❌ Ошибка при создании тестового владельца:', error);
   } finally {
     await prisma.$disconnect();
   }
