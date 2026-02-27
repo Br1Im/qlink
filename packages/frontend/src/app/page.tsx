@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Sparkles,
   MapPin,
@@ -68,14 +69,18 @@ export default function Home() {
       {/* Header */}
       <header className="container mx-auto px-4 py-6 relative z-50">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">Q</span>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-              Qlink
-            </span>
-          </div>
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/logo.png" 
+              alt="Qlink" 
+              width={120} 
+              height={120}
+              className="h-12 w-auto object-contain"
+              priority
+              quality={100}
+              unoptimized
+            />
+          </Link>
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-gray-600 hover:text-blue-600 transition">
               Возможности
@@ -100,57 +105,60 @@ export default function Home() {
       <section className="container mx-auto px-4 py-20 md:py-32">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
-              🚀 Запись онлайн за 30 секунд
+            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-medium flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              <span>Автоматизация записи для вашего бизнеса</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-              Онлайн-запись в{' '}
-              <span className="animate-gradient">любое заведение</span>
+              Увеличьте выручку на{' '}
+              <span className="animate-gradient">45% с Qlink</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Найдите ближайший салон красоты, барбершоп или медицинский центр.
-              Запишитесь онлайн без звонков и ожидания.
+              Современная система онлайн-записи для салонов красоты, барбершопов, медицинских центров и других сервисных бизнесов. Автоматизируйте запись клиентов и увеличьте прибыль.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 relative z-10">
               <Link
-                href="/map"
+                href="/register"
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl font-semibold hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer"
               >
-                Найти заведение
+                Подключить бизнес
               </Link>
               <Link
-                href="/register"
+                href="#pricing"
                 className="px-8 py-4 bg-white text-gray-800 rounded-xl font-semibold border-2 border-gray-200 hover:border-blue-600 transition cursor-pointer"
               >
-                Для владельцев
+                Посмотреть тарифы
               </Link>
             </div>
-            <div className="flex items-center space-x-8 pt-4">
+            <div className="flex items-center space-x-6 pt-4">
+              <div>
+                <div className="text-3xl font-bold text-gray-800">+45%</div>
+                <div className="text-sm text-gray-600">Рост выручки</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-gray-800">-60%</div>
+                <div className="text-sm text-gray-600">Пропущенных звонков</div>
+              </div>
               <div>
                 <div className="text-3xl font-bold text-gray-800">1000+</div>
-                <div className="text-sm text-gray-600">Заведений</div>
+                <div className="text-sm text-gray-600">Довольных клиентов</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-gray-800">50K+</div>
-                <div className="text-sm text-gray-600">Записей</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-800">4.9</div>
-                <div className="text-sm text-gray-600">Рейтинг</div>
+                <div className="text-3xl font-bold text-gray-800">24/7</div>
+                <div className="text-sm text-gray-600">Работает система</div>
               </div>
             </div>
           </div>
           <div className="relative flex justify-center md:justify-end">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl blur-3xl opacity-20 pointer-events-none"></div>
             <div className="relative space-y-4 w-full max-w-xl">
               {/* Badge */}
-              <div className="flex justify-center md:justify-end animate-fade-in">
+              <div className="flex justify-center md:justify-end animate-fade-in pointer-events-none select-none">
                 <div className="inline-flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full font-semibold shadow-lg">
-                  <span className="text-2xl">⚡</span>
+                  <Zap className="w-5 h-5" />
                   <span>Запись в 3 клика</span>
                 </div>
               </div>
-              <div className="relative bg-white rounded-3xl shadow-2xl p-8 space-y-6 w-full animate-modal-appear">
+              <div className="relative bg-white rounded-3xl shadow-2xl p-8 space-y-6 w-full animate-modal-appear pointer-events-none select-none">
               <div className="flex items-center space-x-4 animate-slide-in-1">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex-shrink-0 flex items-center justify-center">
                   <Sparkles className="w-8 h-8 text-white" strokeWidth={2} />
@@ -161,11 +169,11 @@ export default function Home() {
                 </div>
               </div>
               <div className="space-y-3 animate-slide-in-2">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-blue-50 hover:border-blue-200 border-2 border-transparent transition-all duration-500 relative">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-2 border-transparent">
                   <span className="text-gray-700">Стрижка женская</span>
                   <span className="font-semibold">1500 ₽</span>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-blue-50 hover:border-blue-200 border-2 border-transparent transition-all duration-500 animate-click-2 relative">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-2 border-transparent animate-click-2">
                   <span className="text-gray-700">Окрашивание</span>
                   <span className="font-semibold">3000 ₽</span>
                 </div>
@@ -173,20 +181,20 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-3 animate-slide-in-3">
                 {['10:00', '11:00', '12:00', '14:00', '15:00', '16:00'].map(
                   (time, index) => (
-                    <button
+                    <div
                       key={time}
-                      className={`py-3 rounded-xl font-medium transition-all duration-500 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:scale-105 ${
+                      className={`py-3 rounded-xl font-medium bg-blue-50 text-blue-600 text-center ${
                         index === 3 ? 'animate-click-3' : ''
                       }`}
                     >
                       {time}
-                    </button>
+                    </div>
                   )
                 )}
               </div>
-              <button className="w-full py-4 rounded-xl font-semibold transition-all duration-500 animate-slide-in-4 animate-button-activate">
+              <div className="w-full py-4 rounded-xl font-semibold animate-slide-in-4 animate-button-activate bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-center">
                 Записаться
-              </button>
+              </div>
               </div>
             </div>
           </div>
@@ -200,13 +208,13 @@ export default function Home() {
           <ScrollReveal>
             <div className="text-center mb-20">
               <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold mb-4">
-                Возможности
+                Преимущества для бизнеса
               </div>
               <h2 className="text-5xl font-bold mb-6">
-                Всё для удобной записи
+                Всё для роста вашего бизнеса
               </h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Современная платформа с продуманным функционалом
+                Автоматизируйте запись клиентов и увеличьте прибыль с помощью современных инструментов
               </p>
             </div>
           </ScrollReveal>
@@ -219,11 +227,10 @@ export default function Home() {
                   <MapPin className="w-8 h-8 text-white" strokeWidth={2.5} />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-gray-900">
-                  Поиск на карте
+                  Онлайн-запись 24/7
                 </h3>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Интерактивная карта с заведениями поблизости. Фильтры по
-                  категориям и рейтингу.
+                  Клиенты записываются сами в любое время. Вы больше не теряете заявки из-за пропущенных звонков.
                 </p>
                 <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                   <span>Подробнее</span>
@@ -254,11 +261,10 @@ export default function Home() {
                     <Zap className="w-8 h-8 text-white" strokeWidth={2.5} />
                   </div>
                   <h3 className="text-2xl font-bold mb-4 text-gray-900">
-                    Быстрая запись
+                    Автоматические напоминания
                   </h3>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Запишитесь за 30 секунд без регистрации. Выберите услугу и
-                  время - готово!
+                  Система сама напомнит клиентам о записи через Telegram, SMS или Push. Снижение no-show до 80%.
                 </p>
                 <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                   <span>Подробнее</span>
@@ -286,14 +292,13 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"></div>
                 <div className="relative p-8 bg-white rounded-3xl border-2 border-gray-100 hover:border-blue-200 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                    <Bell className="w-8 h-8 text-white" strokeWidth={2.5} />
+                    <BarChart3 className="w-8 h-8 text-white" strokeWidth={2.5} />
                   </div>
                   <h3 className="text-2xl font-bold mb-4 text-gray-900">
-                    Напоминания
+                    Аналитика и отчеты
                   </h3>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Уведомления в Telegram, SMS или Push. Не пропустите свою
-                  запись!
+                  Полная статистика по записям, выручке и загрузке. Принимайте решения на основе данных.
                 </p>
                 <div className="flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform duration-300">
                   <span>Подробнее</span>
@@ -343,6 +348,54 @@ export default function Home() {
               </div>
               <div className="text-gray-600">Поддержка</div>
             </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Free Trial Banner */}
+      <section className="py-16 bg-gradient-to-b from-white to-gray-50">
+        <div className="container mx-auto px-4">
+          <ScrollReveal>
+            <div className="max-w-5xl mx-auto">
+              <div className="relative bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl p-8 md:p-12 overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+                <div className="relative z-10 text-center text-white">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-6">
+                    <Gift className="w-4 h-4" />
+                    <span>Специальное предложение</span>
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-bold mb-4">
+                    Попробуйте бесплатно 7 дней
+                  </h3>
+                  <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+                    Полный доступ ко всем функциям без ограничений. Без привязки карты. Отмените в любой момент.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Link
+                      href="/register"
+                      className="px-8 py-4 bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition transform hover:scale-105 shadow-xl"
+                    >
+                      Начать бесплатный период
+                    </Link>
+                    <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5" />
+                        <span>Без карты</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5" />
+                        <span>7 дней бесплатно</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5" />
+                        <span>Отмена в 1 клик</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </ScrollReveal>
         </div>
@@ -672,7 +725,6 @@ export default function Home() {
               </Link>
             </ScrollReveal>
             <ScrollReveal className="reveal-right">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl blur-3xl opacity-20"></div>
               <div className="relative bg-white rounded-3xl p-8 shadow-2xl">
                 <div className="flex items-center justify-center space-x-4 mb-8">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-2xl"></div>
@@ -762,6 +814,157 @@ export default function Home() {
                 </div>
               </ScrollReveal>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 bg-gradient-to-b from-gray-50 to-white">
+        <div className="container mx-auto px-4">
+          <ScrollReveal>
+            <div className="text-center mb-20">
+              <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-semibold mb-4">
+                Тарифы
+              </div>
+              <h2 className="text-5xl font-bold mb-6">
+                Выберите подходящий тариф
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Прозрачные цены без скрытых платежей. Первые 7 дней бесплатно
+              </p>
+            </div>
+          </ScrollReveal>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Starter Plan */}
+            <ScrollReveal delay={100}>
+              <div className="relative bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 hover:shadow-xl">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Стартовый</h3>
+                  <p className="text-gray-600">Для небольших салонов</p>
+                </div>
+                <div className="mb-6">
+                  <div className="flex items-baseline">
+                    <span className="text-5xl font-bold">2 990</span>
+                    <span className="text-gray-600 ml-2">₽/мес</span>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">До 100 записей в месяц</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">1 сотрудник</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">SMS напоминания</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Базовая аналитика</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/register"
+                  className="block w-full py-3 text-center bg-gray-100 text-gray-800 rounded-xl font-semibold hover:bg-gray-200 transition"
+                >
+                  Попробовать бесплатно
+                </Link>
+              </div>
+            </ScrollReveal>
+
+            {/* Professional Plan */}
+            <ScrollReveal delay={200}>
+              <div className="relative bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl p-8 text-white transform scale-105 shadow-2xl">
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-1 bg-yellow-400 text-gray-900 rounded-full text-sm font-bold">
+                  Популярный
+                </div>
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Профессиональный</h3>
+                  <p className="text-blue-100">Для растущего бизнеса</p>
+                </div>
+                <div className="mb-6">
+                  <div className="flex items-baseline">
+                    <span className="text-5xl font-bold">5 990</span>
+                    <span className="text-blue-100 ml-2">₽/мес</span>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-white mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Неограниченные записи</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-white mr-3 mt-0.5 flex-shrink-0" />
+                    <span>До 5 сотрудников</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-white mr-3 mt-0.5 flex-shrink-0" />
+                    <span>SMS + Telegram + Push</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-white mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Расширенная аналитика</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-white mr-3 mt-0.5 flex-shrink-0" />
+                    <span>Приоритетная поддержка</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/register"
+                  className="block w-full py-3 text-center bg-white text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition"
+                >
+                  Начать сейчас
+                </Link>
+              </div>
+            </ScrollReveal>
+
+            {/* Enterprise Plan */}
+            <ScrollReveal delay={300}>
+              <div className="relative bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-blue-300 transition-all duration-300 hover:shadow-xl">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Корпоративный</h3>
+                  <p className="text-gray-600">Для сетей и франшиз</p>
+                </div>
+                <div className="mb-6">
+                  <div className="flex items-baseline">
+                    <span className="text-5xl font-bold">По запросу</span>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Всё из Professional</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Неограниченно сотрудников</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Мультифилиальность</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">API интеграции</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-700">Персональный менеджер</span>
+                  </li>
+                </ul>
+                <Link
+                  href="/register"
+                  className="block w-full py-3 text-center bg-gray-100 text-gray-800 rounded-xl font-semibold hover:bg-gray-200 transition"
+                >
+                  Связаться с нами
+                </Link>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>

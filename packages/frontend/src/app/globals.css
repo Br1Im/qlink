@@ -375,3 +375,46 @@ input:focus, textarea:focus, select:focus {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 }
+
+/* Dark Theme Styles */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* Dark theme scrollbar */
+.dark ::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-gray-600;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* Dark theme cards */
+.dark .card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.dark .card-shadow:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark theme inputs */
+.dark input:focus, 
+.dark textarea:focus, 
+.dark select:focus {
+  @apply ring-blue-400;
+}
+
+/* Dark theme skeleton */
+.dark .skeleton {
+  @apply bg-gray-700;
+}

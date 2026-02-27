@@ -8,6 +8,9 @@ COPY package*.json ./
 COPY packages/frontend/package*.json ./packages/frontend/
 RUN npm install --legacy-peer-deps
 
+# Install SWC binary for alpine
+RUN cd packages/frontend && npm install @next/swc-linux-x64-musl --save-optional || true
+
 # Copy source code
 COPY tsconfig.json ./
 COPY packages/frontend ./packages/frontend
