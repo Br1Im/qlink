@@ -22,6 +22,7 @@ export default function BookingsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [editingBooking, setEditingBooking] = useState<any>(null);
   const [newBooking, setNewBooking] = useState({
     clientName: '',
@@ -37,151 +38,25 @@ export default function BookingsPage() {
   // Загружаем данные (демо или из localStorage)
   const [bookings, setBookings] = useState<any[]>([]);
 
-  // Сохранение в localStorage при изменении
   // Загрузка записей из API
   useEffect(() => {
     const loadBookings = async () => {
+      setIsDataLoading(true);
       try {
         const data = await api.getBookings();
         setBookings(data);
       } catch (error) {
         console.error('Ошибка загрузки записей:', error);
+      } finally {
+        setIsDataLoading(false);
       }
     };
     loadBookings();
   }, []);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Пытаемся загрузить из API
-        const { api } = await import('@/lib/api');
-        const result = await api.getBookings();
-        setBookings(result.bookings || result);
-      } catch (error: any) {
-        console.error('Ошибка загрузки из API:', error);
-        
-        // Если API недоступен, показываем ошибку и используем localStorage как fallback
-        const savedBookings = localStorage.getItem('qlink-bookings');
-        if (savedBookings) {
-          try {
-            setBookings(JSON.parse(savedBookings));
-            console.warn('⚠️ Используются локально сохраненные данные');
-          } catch (e) {
-            console.error('Ошибка загрузки из localStorage:', e);
-          }
-        }
-        
-        // Показываем уведомление об ошибке
-        if (typeof window !== 'undefined') {
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-          errorDiv.innerHTML = `
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>${error.message || 'Ошибка подключения к серверу'}</span>
-            </div>
-          `;
-          document.body.appendChild(errorDiv);
-          setTimeout(() => errorDiv.remove(), 5000);
-        }
-      }
-    };
-    
-    loadData();
-  }, []);
 
-  // Старый код для демо-режима (оставляем как fallback)
-  useEffect(() => {
-    const loadDemoData = async () => {
-      if (bookings.length > 0) return; // Если данные уже загружены, не загружаем демо
-      
-      if (typeof window !== 'undefined') {
-        const isDemoMode = localStorage.getItem('demo-mode') === 'true';
-        const demoType = localStorage.getItem('demo-type') || 'beauty';
-        
-        if (isDemoMode) {
-          try {
-            const { getDemoAccount } = await import('@/lib/demo-accounts');
-            const account = getDemoAccount(demoType as any);
-            setBookings(account.bookings);
-          } catch (error) {
-            setBookings([
-          {
-            id: 1,
-            client: 'Анна Иванова',
-            phone: '+7 (999) 123-45-67',
-            service: 'Стрижка женская',
-            staff: 'Мария Петрова',
-            date: '2024-11-25',
-            time: '14:00',
-            duration: 90,
-            price: 1500,
-            status: 'confirmed',
-            avatar: null,
-          },
-          {
-            id: 2,
-            client: 'Дмитрий Смирнов',
-            phone: '+7 (999) 234-56-78',
-            service: 'Стрижка мужская',
-            staff: 'Иван Иванов',
-            date: '2024-11-25',
-            time: '15:30',
-            duration: 60,
-            price: 800,
-            status: 'pending',
-            avatar: null,
-          },
-          {
-            id: 3,
-            client: 'Елена Козлова',
-            phone: '+7 (999) 345-67-89',
-            service: 'Окрашивание',
-            staff: 'Мария Петрова',
-            date: '2024-11-25',
-            time: '17:00',
-            duration: 120,
-            price: 3000,
-            status: 'confirmed',
-            avatar: null,
-          },
-          {
-            id: 4,
-            client: 'Сергей Петров',
-            phone: '+7 (999) 456-78-90',
-            service: 'Маникюр',
-            staff: 'Елена Козлова',
-            date: '2024-11-26',
-            time: '10:00',
-            duration: 60,
-            price: 1200,
-            status: 'confirmed',
-            avatar: null,
-          },
-          {
-            id: 5,
-            client: 'Анна Иванова',
-            phone: '+7 (999) 123-45-67',
-            service: 'Педикюр',
-            staff: 'Елена Козлова',
-            date: '2024-11-26',
-            time: '12:00',
-            duration: 75,
-            price: 1500,
-            status: 'pending',
-            avatar: null,
-          },
-        ]);
-          }
-        }
-      }
-    };
-    
-    loadDemoData();
-  }, []);
+
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -298,7 +173,17 @@ export default function BookingsPage() {
 
       {/* Bookings List */}
       <div className="bg-white rounded-xl border border-gray-200">
-        {bookings.length === 0 ? (
+        {isDataLoading ? (
+          <div className="p-12 text-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Загрузка записей...
+            </h3>
+            <p className="text-gray-600">
+              Пожалуйста, подождите
+            </p>
+          </div>
+        ) : bookings.length === 0 ? (
           <div className="p-12 text-center">
             <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -325,10 +210,10 @@ export default function BookingsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4 flex-1">
                   {/* Avatar */}
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold">
-                    {booking.client
-                      ? booking.client.split(' ').map((n: string) => n[0]).join('')
-                      : '?'}
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                    {booking.client && booking.client.trim()
+                      ? booking.client.trim().split(' ').filter((n: string) => n.length > 0).slice(0, 2).map((n: string) => n[0].toUpperCase()).join('')
+                      : 'К'}
                   </div>
 
                   {/* Client Info */}
