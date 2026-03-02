@@ -327,9 +327,8 @@ export default function BookingsPage() {
                   {/* Avatar */}
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold">
                     {booking.client
-                      .split(' ')
-                      .map((n: string) => n[0])
-                      .join('')}
+                      ? booking.client.split(' ').map((n: string) => n[0]).join('')
+                      : '?'}
                   </div>
 
                   {/* Client Info */}
@@ -388,11 +387,16 @@ export default function BookingsPage() {
                   {booking.status === 'pending' && (
                     <>
                       <button 
-                        onClick={() => {
-                          const updatedBookings = bookings.map(b => 
-                            b.id === booking.id ? { ...b, status: 'confirmed' } : b
-                          );
-                          setBookings(updatedBookings);
+                        onClick={async () => {
+                          try {
+                            await api.updateBooking(booking.id, { status: 'confirmed' });
+                            const updatedBookings = bookings.map(b => 
+                              b.id === booking.id ? { ...b, status: 'confirmed' } : b
+                            );
+                            setBookings(updatedBookings);
+                          } catch (error: any) {
+                            alert(error.message || 'Ошибка обновления статуса');
+                          }
                         }}
                         className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition"
                         title="Подтвердить"
@@ -400,11 +404,16 @@ export default function BookingsPage() {
                         <CheckCircle className="w-5 h-5" />
                       </button>
                       <button 
-                        onClick={() => {
-                          const updatedBookings = bookings.map(b => 
-                            b.id === booking.id ? { ...b, status: 'cancelled' } : b
-                          );
-                          setBookings(updatedBookings);
+                        onClick={async () => {
+                          try {
+                            await api.updateBooking(booking.id, { status: 'cancelled' });
+                            const updatedBookings = bookings.map(b => 
+                              b.id === booking.id ? { ...b, status: 'cancelled' } : b
+                            );
+                            setBookings(updatedBookings);
+                          } catch (error: any) {
+                            alert(error.message || 'Ошибка обновления статуса');
+                          }
                         }}
                         className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition"
                         title="Отменить"
@@ -809,31 +818,63 @@ export default function BookingsPage() {
               </div>
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex items-center justify-end space-x-3">
+            <div className="p-6 border-t border-gray-200 flex items-center justify-between">
               <button
-                onClick={() => {
-                  setIsEditModalOpen(false);
-                  setEditingBooking(null);
+                onClick={async () => {
+                  if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+                    setIsLoading(true);
+                    try {
+                      await api.deleteBooking(editingBooking.id);
+                      const updatedBookings = bookings.filter(b => b.id !== editingBooking.id);
+                      setBookings(updatedBookings);
+                      setIsEditModalOpen(false);
+                      setEditingBooking(null);
+                    } catch (error: any) {
+                      alert(error.message || 'Ошибка удаления записи');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }
                 }}
                 disabled={isLoading}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50"
               >
-                Отмена
+                Удалить запись
               </button>
-              <button
-                onClick={() => {
-                  const updatedBookings = bookings.map(b => 
-                    b.id === editingBooking.id ? editingBooking : b
-                  );
-                  setBookings(updatedBookings);
-                  setIsEditModalOpen(false);
-                  setEditingBooking(null);
-                }}
-                disabled={isLoading}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50"
-              >
-                Сохранить изменения
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setEditingBooking(null);
+                  }}
+                  disabled={isLoading}
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Отмена
+                </button>
+                <button
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      await api.updateBooking(editingBooking.id, { status: editingBooking.status });
+                      const updatedBookings = bookings.map(b => 
+                        b.id === editingBooking.id ? editingBooking : b
+                      );
+                      setBookings(updatedBookings);
+                      setIsEditModalOpen(false);
+                      setEditingBooking(null);
+                    } catch (error: any) {
+                      alert(error.message || 'Ошибка обновления записи');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg hover:shadow-lg transition disabled:opacity-50"
+                >
+                  {isLoading ? 'Сохранение...' : 'Сохранить изменения'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

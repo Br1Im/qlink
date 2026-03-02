@@ -60,7 +60,22 @@ router.get('/', authMiddleware, async (req, res) => {
       },
     });
     
-    res.json(bookings);
+    // Преобразуем данные в нужный формат для фронтенда
+    const formattedBookings = bookings.map((booking: any) => ({
+      id: booking.id,
+      client: `${booking.user.firstName} ${booking.user.lastName}`.trim(),
+      phone: booking.user.phone,
+      service: booking.service?.name || 'Услуга',
+      staff: booking.staff ? `${booking.staff.firstName} ${booking.staff.lastName}` : 'Не назначен',
+      date: booking.date.toISOString().split('T')[0],
+      time: booking.startTime,
+      duration: booking.service?.duration || 60,
+      price: booking.price,
+      status: booking.status.toLowerCase(),
+      avatar: null,
+    }));
+    
+    res.json(formattedBookings);
   } catch (error) {
     console.error('Ошибка получения записей:', error);
     res.status(500).json({ error: 'Ошибка получения записей' });
@@ -168,6 +183,40 @@ router.post('/', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Create booking error:', error);
     res.status(500).json({ error: 'Ошибка создания записи' });
+  }
+});
+
+// Обновить запись
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const booking = await prisma.booking.update({
+      where: { id },
+      data: { status: status.toUpperCase() },
+    });
+
+    res.json({ success: true, booking });
+  } catch (error) {
+    console.error('Update booking error:', error);
+    res.status(500).json({ error: 'Ошибка обновления записи' });
+  }
+});
+
+// Удалить запись
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.booking.delete({
+      where: { id },
+    });
+
+    res.json({ success: true, message: 'Запись удалена' });
+  } catch (error) {
+    console.error('Delete booking error:', error);
+    res.status(500).json({ error: 'Ошибка удаления записи' });
   }
 });
 

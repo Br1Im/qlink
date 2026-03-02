@@ -470,4 +470,48 @@ export const api = {
 
     return response.json();
   },
+
+  async updateBooking(id: string | number, data: any) {
+    const apiAvailable = await isApiAvailable();
+    if (!apiAvailable) {
+      throw new Error('Backend API недоступен. Невозможно обновить запись.');
+    }
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/api/bookings/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка обновления записи');
+    }
+
+    return response.json();
+  },
+
+  async deleteBooking(id: string | number) {
+    const apiAvailable = await isApiAvailable();
+    if (!apiAvailable) {
+      throw new Error('Backend API недоступен. Невозможно удалить запись.');
+    }
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/api/bookings/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка удаления записи');
+    }
+
+    return response.json();
+  },
 };
