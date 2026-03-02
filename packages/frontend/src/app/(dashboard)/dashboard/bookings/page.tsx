@@ -38,6 +38,22 @@ export default function BookingsPage() {
   // Загружаем данные (демо или из localStorage)
   const [bookings, setBookings] = useState<any[]>([]);
 
+  // Функция для получения инициалов из имени
+  const getInitials = (name: string): string => {
+    if (!name || !name.trim()) return 'К';
+    
+    const parts = name.trim().split(/\s+/).filter(p => p.length > 0);
+    if (parts.length === 0) return 'К';
+    
+    if (parts.length === 1) {
+      // Если только одно слово, берём первые 2 буквы
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+    
+    // Берём первую букву имени и первую букву фамилии
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  };
+
   // Загрузка записей из API
   useEffect(() => {
     const loadBookings = async () => {
@@ -211,9 +227,7 @@ export default function BookingsPage() {
                 <div className="flex items-center space-x-4 flex-1">
                   {/* Avatar */}
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                    {booking.client && booking.client.trim()
-                      ? booking.client.trim().split(' ').filter((n: string) => n.length > 0).slice(0, 2).map((n: string) => n[0].toUpperCase()).join('')
-                      : 'К'}
+                    {getInitials(booking.client)}
                   </div>
 
                   {/* Client Info */}

@@ -97,6 +97,8 @@ router.post('/', authMiddleware, async (req, res) => {
       comment,
     } = req.body;
 
+    console.log('Creating booking with client name:', client, 'Buffer:', Buffer.from(client, 'utf8').toString('utf8'));
+
     // Вычисляем startTime и endTime
     const startTime = time;
     const [hours, minutes] = time.split(':').map(Number);
