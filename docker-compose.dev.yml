@@ -73,7 +73,7 @@ services:
       dockerfile: Dockerfile.frontend.dev
     container_name: qlink-frontend-dev
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:4001
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4001}
       NODE_ENV: development
     ports:
       - "3003:3000"
