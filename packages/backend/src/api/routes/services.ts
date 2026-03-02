@@ -24,7 +24,7 @@ router.get('/', authMiddleware, async (req, res) => {
     const services = await prisma.service.findMany({
       where: { businessId },
       include: {
-        serviceStaff: {
+        staff: {
           include: {
             staff: {
               select: {
@@ -50,9 +50,9 @@ router.get('/', authMiddleware, async (req, res) => {
       price: service.price,
       duration: service.duration,
       image: service.image,
-      staff: service.serviceStaff.map((ss: any) => `${ss.staff.firstName} ${ss.staff.lastName}`),
+      staff: service.staff.map((ss: any) => `${ss.staff.firstName} ${ss.staff.lastName}`),
       bookings: service._count.bookings,
-      isActive: true,
+      isActive: service.isActive,
     })));
   } catch (error) {
     console.error('Get services error:', error);
@@ -64,7 +64,6 @@ router.get('/', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const {
-      businessId,
       name,
       description,
       category,
@@ -74,24 +73,45 @@ router.post('/', authMiddleware, async (req, res) => {
       staffIds,
     } = req.body;
 
-    // Проверка владельца бизнеса
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const ownerId = (req as any).user.id;
+
+    // Получаем бизнес владельца
+    let business = await prisma.business.findFirst({
+      where: { ownerId },
     });
 
-    if (!business || business.ownerId !== (req as any).user.id) {
-      return res.status(403).json({ error: 'Доступ запрещен' });
+    // Если бизнеса нет, создаем его
+    if (!business) {
+      const owner = await prisma.businessOwner.findUnique({
+        where: { id: ownerId },
+      });
+
+      business = await prisma.business.create({
+        data: {
+          ownerId,
+          name: owner?.company || 'Мой бизнес',
+          slug: `business-${Date.now()}`,
+          description: '',
+          category: 'OTHER',
+          address: '',
+          city: '',
+          country: 'RU',
+          phone: owner?.phone || '',
+          email: owner?.email || '',
+          workingHours: {},
+        },
+      });
     }
 
     const service = await prisma.service.create({
       data: {
-        businessId,
+        businessId: business.id,
         name,
-        description,
-        category,
-        price,
-        duration,
-        image,
+        description: description || '',
+        category: category || 'Общее',
+        price: parseFloat(price),
+        duration: parseInt(duration),
+        image: image || null,
       },
     });
 
@@ -105,7 +125,7 @@ router.post('/', authMiddleware, async (req, res) => {
       });
     }
 
-    res.status(201).json(service);
+    res.status(201).json({ success: true, service });
   } catch (error) {
     console.error('Create service error:', error);
     res.status(500).json({ error: 'Ошибка создания услуги' });

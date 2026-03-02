@@ -7,16 +7,15 @@ import {
   Edit,
   Trash2,
   Clock,
-  DollarSign,
+  Wallet,
   Users,
   ToggleLeft,
   ToggleRight,
 } from 'lucide-react';
-import { loadDemoData } from '@/lib/demo-data';
 import { api } from '@/lib/api';
 
 interface Service {
-  id: number;
+  id: string | number;
   name: string;
   category: string;
   price: number;
@@ -50,73 +49,11 @@ export default function ServicesPage() {
         setServices(data);
       } catch (error) {
         console.error('Ошибка загрузки услуг:', error);
-            // Fallback данные
-            setServices([
-          {
-            id: 1,
-            name: 'Стрижка женская',
-            category: 'Стрижки',
-            price: 1500,
-            duration: 90,
-            staff: ['Мария Петрова', 'Анна Сидорова'],
-            bookings: 45,
-            isActive: true,
-            image: null,
-            description: 'Модельная стрижка с укладкой',
-          },
-          {
-            id: 2,
-            name: 'Стрижка мужская',
-            category: 'Стрижки',
-            price: 800,
-            duration: 45,
-            staff: ['Иван Иванов'],
-            bookings: 67,
-            isActive: true,
-            image: null,
-            description: 'Классическая мужская стрижка',
-          },
-          {
-            id: 3,
-            name: 'Окрашивание',
-            category: 'Окрашивание',
-            price: 3000,
-            duration: 120,
-            staff: ['Мария Петрова'],
-            bookings: 23,
-            isActive: true,
-            image: null,
-            description: 'Окрашивание волос премиум красителями',
-          },
-          {
-            id: 4,
-            name: 'Маникюр',
-            category: 'Ногтевой сервис',
-            price: 1200,
-            duration: 60,
-            staff: ['Елена Козлова'],
-            bookings: 89,
-            isActive: true,
-            image: null,
-            description: 'Классический маникюр с покрытием',
-          },
-          {
-            id: 5,
-            name: 'Педикюр',
-            category: 'Ногтевой сервис',
-            price: 1500,
-            duration: 75,
-            staff: ['Елена Козлова'],
-            bookings: 56,
-            isActive: true,
-            image: null,
-            description: 'Аппаратный педикюр',
-          },
-        ]);
+        setServices([]);
       }
     };
     
-    loadDemoData();
+    loadServices();
   }, []);
 
   const handleOpenModal = (service?: Service) => {
@@ -154,50 +91,77 @@ export default function ServicesPage() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (editingService) {
-      // Редактирование существующей услуги
-      setServices(services.map(s => 
-        s.id === editingService.id 
-          ? {
-              ...s,
-              name: formData.name,
-              category: formData.category,
-              price: parseFloat(formData.price),
-              duration: parseInt(formData.duration),
-              description: formData.description,
-            }
-          : s
-      ));
-    } else {
-      // Создание новой услуги
-      const newService: Service = {
-        id: Math.max(...services.map(s => s.id), 0) + 1,
-        name: formData.name,
-        category: formData.category,
-        price: parseFloat(formData.price),
-        duration: parseInt(formData.duration),
-        description: formData.description,
-        staff: [],
-        bookings: 0,
-        isActive: true,
-        image: null,
-      };
-      setServices([...services, newService]);
+    try {
+      if (editingService) {
+        // Редактирование существующей услуги
+        await api.updateService(editingService.id, {
+          name: formData.name,
+          category: formData.category,
+          price: parseFloat(formData.price),
+          duration: parseInt(formData.duration),
+          description: formData.description,
+        });
+        
+        setServices(services.map(s => 
+          s.id === editingService.id 
+            ? {
+                ...s,
+                name: formData.name,
+                category: formData.category,
+                price: parseFloat(formData.price),
+                duration: parseInt(formData.duration),
+                description: formData.description,
+              }
+            : s
+        ));
+      } else {
+        // Создание новой услуги
+        const result = await api.createService({
+          name: formData.name,
+          category: formData.category,
+          price: parseFloat(formData.price),
+          duration: parseInt(formData.duration),
+          description: formData.description,
+        });
+        
+        const newService: Service = {
+          id: result.service?.id || Date.now(),
+          name: formData.name,
+          category: formData.category,
+          price: parseFloat(formData.price),
+          duration: parseInt(formData.duration),
+          description: formData.description,
+          staff: [],
+          bookings: 0,
+          isActive: true,
+          image: null,
+        };
+        setServices([...services, newService]);
+      }
+      
+      handleCloseModal();
+    } catch (error) {
+      console.error('Ошибка сохранения услуги:', error);
+      alert('Ошибка сохранения услуги. Попробуйте еще раз.');
     }
-    
-    handleCloseModal();
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string | number) => {
     if (confirm('Вы уверены, что хотите удалить эту услугу?')) {
-      setServices(services.filter(s => s.id !== id));
+      try {
+        await api.deleteService(id);
+        setServices(services.filter(s => s.id !== id));
+      } catch (error) {
+        console.error('Ошибка удаления услуги:', error);
+        alert('Ошибка удаления услуги. Попробуйте еще раз.');
+      }
     }
   };
 
-  const handleToggleActive = (id: number) => {
+  const handleToggleActive = (id: string | number) => {
     setServices(services.map(s => 
       s.id === id ? { ...s, isActive: !s.isActive } : s
     ));
@@ -268,7 +232,7 @@ export default function ServicesPage() {
               </p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-purple-600" />
+              <Wallet className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
@@ -370,7 +334,7 @@ export default function ServicesPage() {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-4 h-4 text-blue-600" />
+                    <Wallet className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-600">Цена</p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -25,6 +25,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   // Проверка аутентификации на клиенте
   useEffect(() => {
@@ -51,6 +52,14 @@ export default function DashboardLayout({
       // Перенаправляем на главную страницу
       router.push('/');
     }
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setSidebarOpen(false);
+    startTransition(() => {
+      router.push(href);
+    });
   };
 
   const isActive = (path: string) => {
@@ -120,7 +129,8 @@ export default function DashboardLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setSidebarOpen(false)}
+                prefetch={false}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
                   active
                     ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
@@ -147,7 +157,20 @@ export default function DashboardLayout({
 
       {/* Main content */}
       <main className="lg:ml-64 min-h-screen">
-        <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">{children}</div>
+        <div className="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
+          {isPending ? (
+            <div className="space-y-8 animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-48"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-white rounded-xl p-6 border border-gray-200 h-32"></div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            children
+          )}
+        </div>
       </main>
       
       {/* API Status Warning */}

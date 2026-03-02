@@ -403,4 +403,71 @@ export const api = {
 
     return response.json();
   },
+
+  async createService(data: any) {
+    const apiAvailable = await isApiAvailable();
+    if (!apiAvailable) {
+      throw new Error('Backend API недоступен. Невозможно создать услугу.');
+    }
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/api/services`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка создания услуги');
+    }
+
+    return response.json();
+  },
+
+  async updateService(id: string | number, data: any) {
+    const apiAvailable = await isApiAvailable();
+    if (!apiAvailable) {
+      throw new Error('Backend API недоступен. Невозможно обновить услугу.');
+    }
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/api/services/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка обновления услуги');
+    }
+
+    return response.json();
+  },
+
+  async deleteService(id: string | number) {
+    const apiAvailable = await isApiAvailable();
+    if (!apiAvailable) {
+      throw new Error('Backend API недоступен. Невозможно удалить услугу.');
+    }
+
+    const token = getAuthToken();
+    const response = await fetch(`${API_URL}/api/services/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Ошибка удаления услуги');
+    }
+
+    return response.json();
+  },
 };

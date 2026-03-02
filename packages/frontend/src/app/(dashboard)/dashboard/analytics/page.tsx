@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
+  Wallet,
   Users,
   Calendar,
   Star,
@@ -177,7 +177,7 @@ export default function AnalyticsPage() {
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
+                <Wallet className="w-6 h-6 text-green-600" />
               </div>
             </div>
             <p className="text-sm text-gray-600">Выручка</p>
@@ -248,7 +248,7 @@ export default function AnalyticsPage() {
         <div className="bg-white rounded-xl p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <Wallet className="w-6 h-6 text-green-600" />
             </div>
             <div className="flex items-center space-x-1 text-green-600 text-sm font-medium">
               <ArrowUp className="w-4 h-4" />

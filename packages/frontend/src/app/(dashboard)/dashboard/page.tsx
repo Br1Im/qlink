@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 import {
   Calendar,
   Users,
-  DollarSign,
+  Wallet,
   TrendingUp,
   Clock,
   CheckCircle,
@@ -169,7 +169,7 @@ export default function DashboardPage() {
               )}
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-purple-600" />
+              <Wallet className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>

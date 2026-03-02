@@ -8,7 +8,7 @@ import {
   Mail,
   Phone,
   Calendar,
-  DollarSign,
+  Wallet,
   Star,
   MoreVertical,
 } from 'lucide-react';
@@ -95,7 +95,7 @@ export default function ClientsPage() {
               <p className="text-3xl font-bold text-gray-900 mt-2">0₽</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-purple-600" />
+              <Wallet className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>

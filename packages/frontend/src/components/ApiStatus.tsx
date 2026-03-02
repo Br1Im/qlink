@@ -10,7 +10,8 @@ export default function ApiStatus() {
   useEffect(() => {
     const checkApi = async () => {
       try {
-        const response = await fetch('http://localhost:4000/health', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+        const response = await fetch(`${apiUrl}/health`, {
           method: 'GET',
           signal: AbortSignal.timeout(2000),
         });

@@ -8,7 +8,7 @@ import {
   Trash2,
   Star,
   Calendar,
-  DollarSign,
+  Wallet,
   ToggleRight,
   ToggleLeft,
   Phone,
@@ -163,7 +163,7 @@ export default function StaffPage() {
               </p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-purple-600" />
+              <Wallet className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
