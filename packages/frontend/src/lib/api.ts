@@ -19,7 +19,7 @@ function getAuthToken(): string | null {
 // Проверка доступности API
 async function isApiAvailable(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_URL}/health`, {
+    const response = await fetch(`${API_URL}/api/health`, {
       method: 'GET',
       signal: AbortSignal.timeout(2000), // 2 секунды таймаут
     });

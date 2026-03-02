@@ -11,7 +11,7 @@ export default function ApiStatus() {
     const checkApi = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
-        const response = await fetch(`${apiUrl}/health`, {
+        const response = await fetch(`${apiUrl}/api/health`, {
           method: 'GET',
           signal: AbortSignal.timeout(2000),
         });
