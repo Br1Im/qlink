@@ -60,6 +60,10 @@ export default function BookingsPage() {
       setIsDataLoading(true);
       try {
         const data = await api.getBookings();
+        console.log('Loaded bookings:', data);
+        data.forEach((booking: any) => {
+          console.log('Client name:', booking.client, 'Chars:', Array.from(booking.client).map(c => c.charCodeAt(0)));
+        });
         setBookings(data);
       } catch (error) {
         console.error('Ошибка загрузки записей:', error);
