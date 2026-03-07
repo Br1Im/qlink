@@ -125,4 +125,82 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// Сброс пароля (временная реализация)
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({ error: 'Email и новый пароль обязательны' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'Пароль должен содержать минимум 6 символов' });
+    }
+
+    // Ищем пользователя по email в таблице User (клиенты)
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (user) {
+      // Обновляем пароль для клиента (в таблице User пароля нет, создаем BusinessOwner)
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // Создаем или обновляем BusinessOwner для этого пользователя
+      const owner = await prisma.businessOwner.upsert({
+        where: { email },
+        update: {
+          password: hashedPassword,
+          updatedAt: new Date(),
+        },
+        create: {
+          email,
+          password: hashedPassword,
+          firstName: user.firstName || 'Пользователь',
+          lastName: user.lastName || 'Q-Link',
+          phone: user.phone || '',
+          company: 'Q-Link Business',
+        },
+      });
+
+      return res.json({ 
+        success: true, 
+        message: 'Пароль успешно обновлен',
+        userId: owner.id 
+      });
+    }
+
+    // Ищем в BusinessOwner
+    const owner = await prisma.businessOwner.findUnique({
+      where: { email },
+    });
+
+    if (!owner) {
+      return res.status(404).json({ error: 'Пользователь с таким email не найден' });
+    }
+
+    // Хеширование нового пароля
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Обновление пароля
+    await prisma.businessOwner.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+        updatedAt: new Date(),
+      },
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Пароль успешно обновлен' 
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Ошибка при сбросе пароля' });
+  }
+});
+
 export default router;
