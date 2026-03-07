@@ -1169,7 +1169,7 @@ export default function Home() {
               © 2025 Qlink. Все права защищены.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0 text-sm">
-              <a href="#" className="hover:text-white transition-colors">
+              <a href="/privacy" className="hover:text-white transition-colors">
                 Политика конфиденциальности
               </a>
               <a href="#" className="hover:text-white transition-colors">
