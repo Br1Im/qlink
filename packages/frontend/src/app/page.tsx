@@ -1172,7 +1172,7 @@ export default function Home() {
               <a href="/privacy" className="hover:text-white transition-colors">
                 Политика конфиденциальности
               </a>
-              <a href="#" className="hover:text-white transition-colors">
+              <a href="/terms" className="hover:text-white transition-colors">
                 Условия использования
               </a>
             </div>
